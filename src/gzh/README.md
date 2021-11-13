@@ -85,10 +85,10 @@ $result = $Jsapi->signature($jsapi_ticket , $noncestr ,  $timestamp , $url )
 
 ```json
 {
-    "noncestr" => "Wm3WZYTPz0wzccnW",
-    "jsapi_ticket" => "sM4AOVdWfPE4DxkXGEs8VMCPGGVi4C3VM0P37wVUCFvkVAy_90u5h9nbSlYy3-Sl-HhTdfl2fzFy1AOcHKP7qg",
-    "timestamp" => 1414587457,
-    "url" => "http://mp.weixin.qq.com?params=value",
+    "noncestr" : "Wm3WZYTPz0wzccnW",
+    "jsapi_ticket" : "sM4AOVdWfPE4DxkXGEs8VMCPGGVi4C3VM0P37wVUCFvkVAy_90u5h9nbSlYy3-Sl-HhTdfl2fzFy1AOcHKP7qg",
+    "timestamp" : 1414587457,
+    "url" : "http://mp.weixin.qq.com?params=value",
 }
 
 ```

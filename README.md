@@ -85,7 +85,7 @@ $intactMsg = $Class->getIntactMsg();
 > [官方文档](https://developers.weixin.qq.com/doc/offiaccount/Basic_Information/Get_access_token.html)
 
 
-#### [公众号](https://github.com/littlemolh/composer-qq/tree/main/src/gzh)
+#### [公众号](https://github.com/littlemolh/composer-wechat/tree/main/src/gzh)
 
 #### 小程序
 
