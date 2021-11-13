@@ -1,0 +1,29 @@
+{
+    "name": "littlemo/wechat",
+    "description": "the littlemo wechat tools",
+    "type": "project",
+    "keywords": [
+        "littlemo",
+        "tool",
+        "utils",
+        "wecaht"
+    ],
+    "homepage": "https://ggui.cn/",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "littlemo",
+            "email": "25362583@qq.com"
+        }
+    ],
+    "require": {
+        "php": "^7.0",
+        "littlemo/utils": "~1.0.0"
+    },
+    "require-dev": {},
+    "autoload": {
+        "psr-4": {
+            "littlemo\\wechat\\": "src"
+        }
+    }
+}
