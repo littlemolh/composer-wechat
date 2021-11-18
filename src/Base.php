@@ -186,7 +186,7 @@ class Base
             static::$error_msg = $error_des;
             return false;
         } else {
-            if ($content[$error_field] !== $error_code) {
+            if (isset($content[$error_field]) && $content[$error_field] !== $error_code) {
                 static::$error_msg = $error_des ?: $content;
                 return false;
             }
