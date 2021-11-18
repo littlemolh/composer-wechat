@@ -152,7 +152,7 @@ class Base
      * @param string    $grant_type     获取access_token填写client_credential
      * @return void
      */
-    protected function token($grant_type = 'client_credential')
+    public function token($grant_type = 'client_credential')
     {
         $url = "https://api.weixin.qq.com/cgi-bin/token";
         $params = [
