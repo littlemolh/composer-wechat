@@ -207,10 +207,10 @@ $WebAuth = new WebAuth();
 
 $result = $WebAuth->userinfo($access_token, $openid, $lang = 'zh_CN');
 if ($result) {
-    echo '刷新 token 成功';
+    echo '拉区用户信息成功';
     $token = $WebAuth->getMessage();
 } else {
-    echo "刷新 token 失败";
+    echo "拉区用户信息失败";
     $errorMsg = $WebAuth->getErrorMsg();
 }
 
