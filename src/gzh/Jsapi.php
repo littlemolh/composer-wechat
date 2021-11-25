@@ -53,11 +53,12 @@ class Jsapi extends Base
      * @param string $url           当前网页的URL，不包含#及其后面部分
      * @return void
      */
-    public function signature($jsapi_ticket = '', &$noncestr = '',  &$timestamp = '', &$url = '')
+    public function signature($jsapi_ticket = '', &$noncestr = '',  &$timestamp = '', &$url = '', &$appid = '')
     {
         $noncestr = $noncestr ?: Common::createNonceStr();
         $timestamp = $timestamp ?: time();
         $url = $url ?: ($_SERVER['HTTP_REFERER'] ?? '');
+        $appid = $appid ?: $this->appid;
         $params = [
             'noncestr' => $noncestr,
             'jsapi_ticket' => $jsapi_ticket,

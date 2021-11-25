@@ -34,7 +34,7 @@ composer.json
 ```php
 use littlemo\wechat\Jsapi;
 
-$Jsapi = new Jsapi($appid, $appkey);
+$Jsapi = new Jsapi();
 
 $result = $Jsapi->ticket($access_token);
 if ($result) {
@@ -66,9 +66,9 @@ $intactMsg = $Jsapi->getIntactMsg();
 ```php
 use littlemo\wechat\Jsapi;
 
-$Jsapi = new Jsapi($appid, $appkey);
+$Jsapi = new Jsapi($appid);
 
-$result = $Jsapi->signature($jsapi_ticket , $noncestr ,  $timestamp , $url )
+$result = $Jsapi->signature($jsapi_ticket , $noncestr ,  $timestamp , $url,$appid )
 
 
 ```
@@ -76,6 +76,7 @@ $result = $Jsapi->signature($jsapi_ticket , $noncestr ,  $timestamp , $url )
 实例化参数
 |     参数     |  类型  | 是否必填 | 说明                               |
 | :----------: | :----: | :------: | :--------------------------------- |
+|    appid     | string |    Y     | 小程序的appid                      |
 | jsapi_ticket | string |    Y     | 有效的ticket                       |
 |   noncestr   | string |    N     | 随机字符串                         |
 |  timestamp   | string |    N     | 时间戳                             |
