@@ -48,7 +48,6 @@ if ($result) {
 //查询完整的回调消息
 $intactMsg = $Jsapi->getIntactMsg();
 
-
 ```
 
 参数
