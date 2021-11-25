@@ -25,7 +25,7 @@ class Jsapi extends Base
      * @author LittleMo 25362583@qq.com
      * @since 2021-11-04
      * @version 2021-11-04
-     * @param string $access_token
+     * @param string $access_token  全局唯一接口调用凭据
      * @return array
      */
     public function ticket($access_token)
@@ -53,11 +53,12 @@ class Jsapi extends Base
      * @param string $url           当前网页的URL，不包含#及其后面部分
      * @return void
      */
-    public function signature($jsapi_ticket = '', &$noncestr = '',  &$timestamp = '', &$url = '')
+    public function signature($jsapi_ticket = '', &$noncestr = '',  &$timestamp = '', &$url = '', &$appid = '')
     {
         $noncestr = $noncestr ?: Common::createNonceStr();
         $timestamp = $timestamp ?: time();
         $url = $url ?: ($_SERVER['HTTP_REFERER'] ?? '');
+        $appid = $appid ?: $this->appid;
         $params = [
             'noncestr' => $noncestr,
             'jsapi_ticket' => $jsapi_ticket,

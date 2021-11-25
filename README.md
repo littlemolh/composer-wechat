@@ -1,5 +1,5 @@
 
-littlemo QQ互联
+Wechat littlemo 
 ===============
 
 [![Total Downloads](https://poser.pugx.org/littlemo/wechat/downloads)](https://packagist.org/packages/littlemo/wechat)
@@ -9,7 +9,7 @@ littlemo QQ互联
 [![License](https://poser.pugx.org/littlemo/wechat/license)](https://packagist.org/packages/littlemo/wechat)
 
 ### 介绍
-QQ互联常用工具库
+微信常用工具库
 
 ### 安装教程
 
