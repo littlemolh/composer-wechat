@@ -51,6 +51,20 @@ $intactMsg = $Jsapi->getIntactMsg();
 
 ```
 
+参数
+|     参数     |  类型  | 是否必填 | 说明                 |
+| :----------: | :----: | :------: | :------------------- |
+| access_token | string |    Y     | 全局唯一接口调用凭据 |
+
+返回结果
+```json
+{
+  "errcode":0,
+  "errmsg":"ok",
+  "ticket":"bxLdikRXVbTPdHSM05e5u5sUoXNKd8-41ZO3MhKoyN5OfkWITDGgnr2fwJ0m9E8NYzWKVZvdVtaUgWvsdshFKA",
+  "expires_in":7200
+}
+```
 
 
 > [官方文档](https://developers.weixin.qq.com/doc/offiaccount/OA_Web_Apps/JS-SDK.html#62)
@@ -68,12 +82,12 @@ use littlemo\wechat\Jsapi;
 
 $Jsapi = new Jsapi($appid);
 
-$result = $Jsapi->signature($jsapi_ticket , $noncestr ,  $timestamp , $url,$appid )
+$result = $Jsapi->signature($jsapi_ticket, $noncestr, $timestamp, $url, $appid )
 
 
 ```
 
-实例化参数
+参数
 |     参数     |  类型  | 是否必填 | 说明                               |
 | :----------: | :----: | :------: | :--------------------------------- |
 |    appid     | string |    Y     | 小程序的appid                      |
@@ -93,6 +107,8 @@ $result = $Jsapi->signature($jsapi_ticket , $noncestr ,  $timestamp , $url,$appi
 }
 
 ```
+
+> [官方文档](https://developers.weixin.qq.com/doc/offiaccount/OA_Web_Apps/JS-SDK.html#62)
 
 #### access_token
 
@@ -121,7 +137,7 @@ $intactMsg = $WebAuth->getIntactMsg();
 
 ```
 
-实例化参数
+参数
 |    参数    |  类型  | 是否必填 |        默认        | 说明                                               |
 | :--------: | :----: | :------: | :----------------: | :------------------------------------------------- |
 |   appid    | string |    Y     |                    | 小程序的appid                                      |
@@ -157,7 +173,7 @@ use littlemo\wechat\WebAuth;
 
 $WebAuth = new WebAuth($appid);
 
-$result = $WebAuth->refresh_token($refresh_token,$grant_type);
+$result = $WebAuth->refresh_token($refresh_token, $grant_type);
 if ($result) {
     echo '刷新 token 成功';
     $token = $WebAuth->getMessage();
@@ -172,7 +188,7 @@ $intactMsg = $WebAuth->getIntactMsg();
 
 ```
 
-实例化参数
+参数
 |     参数      |  类型  | 是否必填 |     默认      | 说明                                          |
 | :-----------: | :----: | :------: | :-----------: | :-------------------------------------------- |
 |     appid     | string |    Y     |               | 小程序的appid                                 |
@@ -206,7 +222,7 @@ use littlemo\wechat\WebAuth;
 
 $WebAuth = new WebAuth();
 
-$result = $WebAuth->userinfo($access_token, $openid, $lang = 'zh_CN');
+$result = $WebAuth->userinfo($access_token, $openid, $lang);
 if ($result) {
     echo '拉取用户信息成功';
     $token = $WebAuth->getMessage();
@@ -221,7 +237,7 @@ $intactMsg = $WebAuth->getIntactMsg();
 
 ```
 
-实例化参数
+参数
 |     参数     |  类型  | 是否必填 | 默认  | 说明                                                                  |
 | :----------: | :----: | :------: | :---: | :-------------------------------------------------------------------- |
 | access_token | string |    Y     |       | 网页授权接口调用凭证,注意：此access_token与基础支持的access_token不同 |

@@ -25,7 +25,7 @@ class Jsapi extends Base
      * @author LittleMo 25362583@qq.com
      * @since 2021-11-04
      * @version 2021-11-04
-     * @param string $access_token
+     * @param string $access_token  全局唯一接口调用凭据
      * @return array
      */
     public function ticket($access_token)
