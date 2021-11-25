@@ -27,10 +27,9 @@ class WebAuth extends Base
      * @param string $code
      * @return array
      */
-    public function access_token($code)
+    public function access_token($code, $grant_type = 'authorization_code')
     {
 
-        $grant_type    = 'authorization_code';
         $url = "https://api.weixin.qq.com/sns/oauth2/access_token";
         $params = [
             "appid" =>  $this->appid,
@@ -53,9 +52,8 @@ class WebAuth extends Base
      * @param array $refresh_token 填写通过access_token获取到的refresh_token参数
      * @return array
      */
-    public function refresh_token($refresh_token)
+    public function refresh_token($refresh_token, $grant_type = 'refresh_token')
     {
-        $grant_type    = 'refresh_token';
         $url = "https://api.weixin.qq.com/sns/oauth2/refresh_token";
         $params = [
             "appid" =>  $this->appid,
