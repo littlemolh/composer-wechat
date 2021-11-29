@@ -98,14 +98,8 @@ $result = $Jsapi->signature($jsapi_ticket, $noncestr, $timestamp, $url, $appid )
 
 返回结果
 
-```json
-{
-    "noncestr" : "Wm3WZYTPz0wzccnW",
-    "jsapi_ticket" : "sM4AOVdWfPE4DxkXGEs8VMCPGGVi4C3VM0P37wVUCFvkVAy_90u5h9nbSlYy3-Sl-HhTdfl2fzFy1AOcHKP7qg",
-    "timestamp" : 1414587457,
-    "url" : "http://mp.weixin.qq.com?params=value",
-}
-
+```string
+Wm3WZYTPz0wzccnW
 ```
 
 > [官方文档](https://developers.weixin.qq.com/doc/offiaccount/OA_Web_Apps/JS-SDK.html#62)
