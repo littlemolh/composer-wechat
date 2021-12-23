@@ -9,7 +9,7 @@
 [![License](https://poser.pugx.org/littlemo/wechat/license)](https://packagist.org/packages/littlemo/wechat)
 
 ### 介绍
-QQ互联常用工具库
+公众号相关工具
 
 ### 安装教程
 
