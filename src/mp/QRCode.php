@@ -149,7 +149,7 @@ class QRCode extends Base
      * @param boolean   $is_hyalineline   是否需要透明底色，为 true 时，生成透明底色的小程序
      * @return array
      */
-    public function getUnlimited($access_token, $scene = null, $page = '', $width = '', $auto_colorr = false, $line_colorr = null, $is_hyalineline = false)
+    public function getUnlimited($access_token, $scene = null, $page = '', $check_path = '', $width = '', $auto_colorr = false, $line_colorr = null, $is_hyalineline = false)
     {
         //POST https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=ACCESS_TOKEN
         $url = "https://api.weixin.qq.com/wxa/getwxacodeunlimit";
@@ -169,6 +169,12 @@ class QRCode extends Base
              * 例如 pages/index/index, 根路径前不要填加 /,不能携带参数（参数请放在scene字段里），如果不填写这个字段，默认跳主页面
              */
             'page' => $page,
+            /**
+             * 检查page 是否存在
+             * 默认值：true
+             * 为 true 时 page 必须是已经发布的小程序存在的页面（否则报错）；为 false 时允许小程序未发布或者 page 不存在， 但page 有数量上限（60000个）请勿滥用
+             */
+            'check_path' => $check_path,
             /**
              * 非必填
              * 默认值：430
