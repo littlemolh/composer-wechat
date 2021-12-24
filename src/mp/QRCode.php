@@ -59,7 +59,7 @@ class QRCode extends Base
         ];
 
 
-        return $this->init_result((new HttpClient())->post($url, $body, $params));
+        return $this->init_result((new HttpClient())->post($url, json_encode($body), $params));
     }
 
     /**
@@ -128,7 +128,7 @@ class QRCode extends Base
             'access_token' => $access_token
         ];
 
-        return $this->init_result((new HttpClient())->post($url, $body, $params));
+        return $this->init_result((new HttpClient())->post($url, json_encode($body), $params));
     }
     /**
      * 获取小程序码
@@ -206,6 +206,6 @@ class QRCode extends Base
         ];
 
 
-        return $this->init_result((new HttpClient())->post($url, $body, $params));
+        return $this->init_result((new HttpClient())->post($url, json_encode($body), $params));
     }
 }
