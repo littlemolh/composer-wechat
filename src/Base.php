@@ -178,17 +178,21 @@ class Base
     {
         static::$intact_msg[] = $result;
 
-        $content = $result['content'];
-        $content =  !empty($content) ? json_decode($content, true) : $content;
+        $content =  !empty($result['content']) ? json_decode($result['content'], true) : $result['content'];
+        if (!$content) {
+            $content = $result['content'];
+        }
         $error_des = $result['error_des'];
-
         if ($result['code'] === 0 || $content === false) {
             static::$error_msg = $error_des;
             return false;
         } else {
-            if (isset($content[$error_field]) && $content[$error_field] !== $error_code) {
-                static::$error_msg = $error_des ?: $content;
-                return false;
+            if (is_array($content)) {
+                if (isset($content[$error_field]) && $content[$error_field] !== $error_code) {
+                    static::$error_msg = $error_des ?: $content;
+                    return false;
+                }
+            } else {
             }
             static::$message = $content;
             return true;
