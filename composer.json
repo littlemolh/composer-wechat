@@ -18,7 +18,7 @@
     ],
     "require": {
         "php": "^7.0",
-        "littlemo/utils": "~1.0.0"
+        "littlemo/utils": "~1.1.0"
     },
     "require-dev": {},
     "autoload": {
