@@ -73,8 +73,8 @@ class QRCode extends Base
         $body = array_merge([
             'path' => null,
             'width' => 430,
-            'auto_colorr' => false,
-            'line_colorr' => null,
+            'auto_color' => false,
+            'line_color' => null,
             'is_hyaline' => false
         ], $data);
 
@@ -98,8 +98,8 @@ class QRCode extends Base
      * @param string    $data['check_path']	      检查page 是否存在，为 true 时 page 必须是已经发布的小程序存在的页面（否则报错）；为 false 时允许小程序未发布或者 page 不存在， 但page 有数量上限（60000个）请勿滥用
      * @param string    $data['env_version']	  要打开的小程序版本。正式版为 "release"，体验版为 "trial"，开发版为 "develop"
      * @param int       $data['width']            二维码的宽度，单位 px，最小 280px，最大 1280px
-     * @param boolean   $data['auto_colorr']      自动配置线条颜色，如果颜色依然是黑色，则说明不建议配置主色调，默认 false
-     * @param Object    $data['line_colorr']      auto_color 为 false 时生效，使用 rgb 设置颜色 例如 {"r":"xxx","g":"xxx","b":"xxx"} 十进制表示
+     * @param boolean   $data['auto_color']      自动配置线条颜色，如果颜色依然是黑色，则说明不建议配置主色调，默认 false
+     * @param Object    $data['line_color']      auto_color 为 false 时生效，使用 rgb 设置颜色 例如 {"r":"xxx","g":"xxx","b":"xxx"} 十进制表示
      * @param boolean   $data['is_hyaline']   是否需要透明底色，为 true 时，生成透明底色的小程序
      * @return array
      */
@@ -114,8 +114,8 @@ class QRCode extends Base
             'check_path' => true,
             'env_version' => 'release',
             'width' => '',
-            'auto_colorr' => false,
-            'line_colorr' => null,
+            'auto_color' => false,
+            'line_color' => null,
             'is_hyaline' => false
         ], $data);
 
