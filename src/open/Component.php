@@ -183,4 +183,120 @@ class Component extends Base
 
         return $this->init_result((new HttpClient())->post($url, $body));
     }
+
+    /* 以下是 【代公众号发起网页授权】 相关业务*/
+
+    /**
+     * 获取请求code的uri
+     * @description
+     * @example
+     * @author LittleMo 25362583@qq.com
+     * @since 2022-04-20
+     * @version 2022-04-20
+     * @param string $appid             公众号的 appid
+     * @param string $component_appid   服务方的 appid，在申请创建公众号服务成功后，可在公众号服务详情页找到
+     * @param string $redirect_uri      重定向地址，需要 urlencode，这里填写的是第三方平台的【公众号开发域名】，注意这个配置需要勾选公众号相关全权限集才可以看到
+     * @param string $response_type     填 code
+     * @param string $scope             授权作用域，拥有多个作用域用逗号（,）分隔
+     * @param string $state             重定向后会带上 state 参数，开发者可以填写任意参数值，最多 128 字节
+     * @return bool
+     */
+    public function getCodeUri($appid, $redirect_uri, $state = '', $response_type = 'code', $scope = 'snsapi_userinfo')
+    {
+        $url = 'https://open.weixin.qq.com/connect/oauth2/authorize';
+
+        $params = [
+            'appid' => $appid, //公众号的 appid
+            'redirect_uri' => urlencode($redirect_uri),
+            'response_type' => $response_type,
+            'scope' => $scope,
+            'state' => $state,
+            'component_appid' => $this->appid,
+        ];
+
+        return (new HttpClient())->buildUrl($url, $params);
+    }
+
+    /**
+     * 通过 code 换取 access_token
+     * https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Before_Develop/Official_Accounts/official_account_website_authorization.html
+     * @description 需要注意的是，由于安全方面的考虑，对访问该链接的客户端有 IP 白名单的要求。
+     * @example
+     * @author LittleMo 25362583@qq.com
+     * @since 2022-04-20
+     * @version 2022-04-20
+     * @param string $appid                     公众号的 appid
+     * @param string $code                      填写第一步获取的 code 参数
+     * @param string $component_access_token    服务开发方的 access_token
+     * @param string $grant_type                填 authorization_code
+     * @return bool
+     */
+    public function codeToAccessToken($appid, $code, $component_access_token, $grant_type = 'authorization_code')
+    {
+
+        $url = 'https://api.weixin.qq.com/sns/oauth2/component/access_token';
+
+        $params = [
+            'appid' => $appid, //公众号的 appid
+            'code' => $code,
+            'grant_type' => $grant_type,
+            'component_appid' => $this->appid, //服务开发方的 appid
+            'component_access_token' => $component_access_token,
+        ];
+
+        return $this->init_result((new HttpClient())->get($url, $params));
+    }
+
+    /**
+     * 刷新 access_token（如果需要）
+     * @description 由于 access_token 拥有较短的有效期，当 access_token 超时后，可以使用 refresh_token 进行刷新，refresh_token 拥有较长的有效期（30 天），当 refresh_token 失效的后，需要用户重新授权。
+     * @example
+     * @author LittleMo 25362583@qq.com
+     * @since 2022-04-20
+     * @version 2022-04-20
+     * @param string $appid                     公众号的 appid
+     * @param string $refresh_token             填写通过 access_token 获取到的 refresh_token 参数
+     * @param string $component_access_token    服务开发方的 access_token
+     * @param string $grant_type                填 refresh_token
+     * @return void
+     */
+    public function refreshToken($appid, $refresh_token, $component_access_token, $grant_type = 'refresh_token')
+    {
+        $url = 'https://api.weixin.qq.com/sns/oauth2/component/refresh_token';
+
+        $params = [
+            'appid' => $appid, //公众号的 appid
+            'grant_type' => $grant_type,
+            'refresh_token' => $refresh_token,
+            'component_appid' => $this->appid, //服务开发方的 appid
+            'component_access_token' => $component_access_token,
+        ];
+
+        return $this->init_result((new HttpClient())->get($url, $params));
+    }
+
+    /**
+     * 通过网页授权 access_token 获取用户基本信息（需授权作用域为 snsapi_userinfo）
+     * @description 如果网页授权作用域为 snsapi_userinfo，则此时开发者可以通过 access_token 和 openid 拉取用户信息了
+     * @example
+     * @author LittleMo 25362583@qq.com
+     * @since 2022-04-20
+     * @version 2022-04-20
+     * @param string $access_token
+     * @param string $openid
+     * @param string $lang
+     * @return void
+     */
+    public function getUserinfo($access_token, $openid, $lang = 'zh_CN')
+    {
+        $url = 'https://api.weixin.qq.com/sns/userinfo';
+
+        $params = [
+            'access_token' => $access_token,
+            'openid' => $openid,
+            'lang' => $lang,
+        ];
+
+        return $this->init_result((new HttpClient())->get($url, $params));
+    }
 }
