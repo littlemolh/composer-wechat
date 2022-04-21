@@ -53,7 +53,7 @@ class Component extends Base
         $body = [
             'component_appid' => $this->appid, //第三方平台 appid
             'component_appsecret' =>  $this->secret, //第三方平台 appsecret
-            'component_verify_ticket' => $this->verifyTicket
+            'component_verify_ticket' => $verifyTicket
         ];
         return $this->init_result((new HttpClient())->post($url, $body));
     }
