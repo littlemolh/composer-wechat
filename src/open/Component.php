@@ -207,7 +207,7 @@ class Component extends Base
 
         $params = [
             'appid' => $appid, //公众号的 appid
-            'redirect_uri' => urlencode($redirect_uri),
+            'redirect_uri' => $redirect_uri,
             'response_type' => $response_type,
             'scope' => $scope,
             'state' => $state,
