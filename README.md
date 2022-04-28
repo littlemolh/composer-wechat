@@ -17,7 +17,7 @@ composer.json
 ```json
 {
     "require": {
-        "littlemo/wechat": "~1.0.0"
+        "littlemo/wechat": "~1.2.0"
     }
 }
 ```
