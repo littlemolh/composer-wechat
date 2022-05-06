@@ -1,9 +1,9 @@
 <?php
 
-namespace littlemo\wechat\gzh;
+namespace littlemo\wechat\mp;
 
 use littlemo\utils\HttpClient;
-use littlemo\utils\Common;
+use littlemo\utils\Tools;
 use littlemo\wechat\core\Base;
 
 /**
@@ -55,7 +55,7 @@ class Jsapi extends Base
      */
     public function signature($jsapi_ticket = '', &$noncestr = '',  &$timestamp = '', &$url = '', &$appid = '')
     {
-        $noncestr = $noncestr ?: Common::createNonceStr();
+        $noncestr = $noncestr ?: Tools::createNonceStr(32);
         $timestamp = $timestamp ?: time();
         $url = $url ?: ($_SERVER['HTTP_REFERER'] ?? '');
         $appid = $appid ?: $this->appid;
@@ -65,6 +65,6 @@ class Jsapi extends Base
             'timestamp' => $timestamp,
             'url' => $url,
         ];
-        return Common::createSign($params, [], 'sha1');
+        return Tools::createSign($params, [], 'sha1');
     }
 }

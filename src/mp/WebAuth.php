@@ -1,6 +1,6 @@
 <?php
 
-namespace littlemo\wechat\gzh;
+namespace littlemo\wechat\mp;
 
 use littlemo\utils\HttpClient;
 use littlemo\wechat\core\Base;
