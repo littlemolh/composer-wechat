@@ -3,7 +3,7 @@
 namespace littlemo\wechat;
 
 use littlemo\utils\HttpClient;
-use littlemo\wechat\exception\LWechatException;
+use littlemo\wechat\exception\lWechatException;
 
 /**
  * 公众号\小程序基础对象
@@ -105,11 +105,11 @@ class Base
             $content = $result['content'];
         }
         if ($result['code'] !== 200 || $content === false) {
-            throw new LWechatException($result['error_des'], $result['code'], $content);
+            throw new lWechatException($result['error_des'], $result['code'], $content);
         }
         if (is_array($content)) {
             if (isset($content[$error_field]) && $content[$error_field] !== $error_code) {
-                throw new LWechatException($content[$errmsg_field], $content[$error_field], $content);
+                throw new lWechatException($content[$errmsg_field], $content[$error_field], $content);
             }
         }
 

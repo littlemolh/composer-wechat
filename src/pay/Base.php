@@ -12,7 +12,7 @@
 
 namespace littlemo\wechat\pay;
 
-use littlemo\wechat\exception\LWechatException;
+use littlemo\wechat\exception\lWechatException;
 
 /**
  * 微信支付公共方法
@@ -133,13 +133,13 @@ class  Base
         $content = $result['content'];
 
         if ($code !== 200 || $content === false) {
-            throw new LWechatException($result['error_des']);
+            throw new lWechatException($result['error_des']);
         }
         $content = simplexml_load_string($content, "SimpleXMLElement", LIBXML_NOCDATA);
         $content = $content !== false ? json_encode($content) : $content;
         $content = $content !== false ? json_decode($content) : $content;
         if ($content->$error_field != $error_code) {
-            throw new LWechatException($content->err_code_des, $content->err_code, $content);
+            throw new lWechatException($content->err_code_des, $content->err_code, $content);
         }
         return $content;
     }

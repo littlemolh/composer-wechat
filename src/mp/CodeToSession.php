@@ -5,7 +5,7 @@ namespace littlemo\wechat\mp;
 use littlemo\wechat\mp\common\WXBizDataCrypt;
 
 use littlemo\wechat\Base;
-use littlemo\wechat\exception\LWechatException;
+use littlemo\wechat\exception\lWechatException;
 use littlemo\wechat\mp\common\ErrorCode;
 
 /**
@@ -35,7 +35,7 @@ class CodeToSession extends Base
 
         $errCode = $pc->decryptData($encrypted_data, $iv, $data); // 其中$data包含用户的所有数据
         if ($errCode != 0) {
-            throw new LWechatException(ErrorCode::getErrorMsg($errCode), $errCode, $data);
+            throw new lWechatException(ErrorCode::getErrorMsg($errCode), $errCode, $data);
         }
         return $data;
     }

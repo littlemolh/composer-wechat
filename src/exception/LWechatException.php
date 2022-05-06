@@ -11,7 +11,7 @@ namespace littlemo\wechat\exception;
  * @since 2022-04-29
  * @version 2022-04-29
  */
-class LWechatException extends \Exception
+class lWechatException extends \Exception
 {
     /**
      * DbException constructor.
