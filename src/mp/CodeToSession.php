@@ -4,8 +4,8 @@ namespace littlemo\wechat\mp;
 
 use littlemo\wechat\mp\common\WXBizDataCrypt;
 
-use littlemo\wechat\Base;
-use littlemo\wechat\exception\lWechatException;
+use littlemo\wechat\core\Base;
+use littlemo\wechat\core\lWechatException;
 use littlemo\wechat\mp\common\ErrorCode;
 
 /**

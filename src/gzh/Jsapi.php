@@ -4,7 +4,7 @@ namespace littlemo\wechat\gzh;
 
 use littlemo\utils\HttpClient;
 use littlemo\utils\Common;
-use littlemo\wechat\Base;
+use littlemo\wechat\core\Base;
 
 /**
  * TODO 微信网页JS-SDK开发

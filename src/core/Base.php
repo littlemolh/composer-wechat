@@ -1,9 +1,9 @@
 <?php
 
-namespace littlemo\wechat;
+namespace littlemo\wechat\core;
 
 use littlemo\utils\HttpClient;
-use littlemo\wechat\exception\lWechatException;
+use littlemo\wechat\core\lWechatException;
 
 /**
  * 公众号\小程序基础对象

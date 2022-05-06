@@ -55,7 +55,7 @@ $Class = new Class($appid , $secret, $mchid , $key , $certPath, $keyPath );
 
 ```php
 use littlemo\wechat\Class;
-use littlemo\wechat\exception\lWechatException;
+use littlemo\wechat\core\lWechatException;
 
 $Class = new Class($appid, $appkey);
 

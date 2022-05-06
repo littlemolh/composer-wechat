@@ -5,7 +5,7 @@ namespace littlemo\wechat\mp;
 use littlemo\wechat\mp\common\WXBizDataCrypt;
 
 use littlemo\utils\HttpClient;
-use littlemo\wechat\Base;
+use littlemo\wechat\core\Base;
 
 /**
  * TODO 小程序登录凭证校验。通过 wx.login 接口获得临时登录凭证 code 换取openid。

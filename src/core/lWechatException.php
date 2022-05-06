@@ -1,6 +1,6 @@
 <?php
 
-namespace littlemo\wechat\exception;
+namespace littlemo\wechat\core;
 
 
 /**

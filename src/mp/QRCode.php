@@ -2,7 +2,7 @@
 
 namespace littlemo\wechat\mp;
 
-use littlemo\wechat\Base;
+use littlemo\wechat\core\Base;
 use littlemo\utils\HttpClient;
 
 /**

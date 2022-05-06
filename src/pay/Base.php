@@ -12,7 +12,7 @@
 
 namespace littlemo\wechat\pay;
 
-use littlemo\wechat\exception\lWechatException;
+use littlemo\wechat\core\lWechatException;
 
 /**
  * 微信支付公共方法
