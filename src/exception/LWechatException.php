@@ -27,4 +27,9 @@ class lWechatException extends \Exception
         $this->code = $code;
         $this->data = $data;
     }
+
+    public function getData()
+    {
+        return $this->data;
+    }
 }

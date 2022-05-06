@@ -55,6 +55,7 @@ $Class = new Class($appid , $secret, $mchid , $key , $certPath, $keyPath );
 
 ```php
 use littlemo\wechat\Class;
+use littlemo\wechat\exception\lWechatException;
 
 $Class = new Class($appid, $appkey);
 
@@ -67,6 +68,14 @@ if ($result) {
     echo "获取Access token失败";
     $errorMsg = $Class->getErrorMsg();
 }
+
+try{
+    $data = $Class->token()
+}catch(lWechatException $e){
+    print_r('错误代码：'.$e->getCode());
+    print_r('错误提示：'.$e->getMessage());
+    print_r('完整的内容：'.json_encode($e->getData()));
+};
 
 //查询完整的回调消息
 $intactMsg = $Class->getIntactMsg();
