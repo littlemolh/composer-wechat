@@ -20,4 +20,17 @@ class ErrorCode
     public static $IllegalIv = -41002;
     public static $IllegalBuffer = -41003;
     public static $DecodeBase64Error = -41004;
+
+    public static function getErrorMsg($code)
+    {
+        $error = [
+            0 => "OK",
+            -41001 => "encodingAesKey 非法",
+            -41003 => "aes 解密失败",
+            -41004 => "解密后得到的buffer非法",
+            -41005 => "base64加密失败",
+            -41016 => "base64解密失败",
+        ];
+        return $error[$code];
+    }
 }

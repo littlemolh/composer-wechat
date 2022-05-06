@@ -3,7 +3,7 @@
 namespace littlemo\wechat;
 
 use littlemo\utils\HttpClient;
-
+use littlemo\wechat\exception\LWechatException;
 
 /**
  * 公众号\小程序基础对象
@@ -41,77 +41,6 @@ class Base
      */
     protected $secret = null;
 
-    /**
-     * 微信支付商户号
-     *
-     * @var string
-     * @description
-     * @example
-     * @author LittleMo 25362583@qq.com
-     * @since 2021-11-11
-     * @version 2021-11-11
-     */
-    protected $mchid = null;
-
-    /**
-     * 微信支付商户支付密钥
-     *
-     * @var string
-     * @description
-     * @example
-     * @author LittleMo 25362583@qq.com
-     * @since 2021-11-11
-     * @version 2021-11-11
-     */
-    protected $key = null;
-
-    /**
-     * 微信支付证书cert路径
-     */
-    protected $sslCertPath = '';
-
-    /**
-     * 微信支付证书key路径
-     */
-    protected $sslKeyPath = '';
-
-
-    /**
-     * 成功消息
-     *
-     * @var [type]
-     * @description
-     * @example
-     * @author LittleMo 25362583@qq.com
-     * @since 2021-11-12
-     * @version 2021-11-12
-     */
-    protected static $message = null;
-
-    /**
-     * 错误消息
-     *
-     * @var [type]
-     * @description
-     * @example
-     * @author LittleMo 25362583@qq.com
-     * @since 2021-11-12
-     * @version 2021-11-12
-     */
-    protected static $error_msg = null;
-
-    /**
-     * 完整的消息
-     *
-     * @var array
-     * @description
-     * @example
-     * @author LittleMo 25362583@qq.com
-     * @since 2021-11-12
-     * @version 2021-11-12
-     */
-    protected static $intact_msg = [];
-
 
     /**
      * 构造函数
@@ -126,16 +55,10 @@ class Base
      * @param string $mchid     商户号
      * @param string $key       商户号支付密钥
      */
-    public function __construct($appid = null, $secret = null, $mchid = null, $key = null, $certPath = '', $keyPath = '')
+    public function __construct($appid = null, $secret = null)
     {
         $this->appid = $appid;
         $this->secret = $secret;
-
-        $this->mchid = $mchid;
-        $this->key = $key;
-
-        $this->sslCertPath = $certPath;
-        $this->sslKeyPath = $keyPath;
     }
 
     /**
@@ -174,73 +97,22 @@ class Base
      * @param [type] $result
      * @return void
      */
-    protected function init_result($result, $error_field = 'errcode', $error_code = 0)
+    protected function init_result($result, $error_field = 'errcode', $error_code = 0, $errmsg_field = 'errmsg')
     {
-        static::$intact_msg[] = $result;
 
         $content =  !empty($result['content']) ? json_decode($result['content'], true) : $result['content'];
         if (!$content) {
             $content = $result['content'];
         }
-        $error_des = $result['error_des'];
-        if ($result['code'] === 0 || $content === false) {
-            static::$error_msg = $error_des;
-            return false;
-        } else {
-            if (is_array($content)) {
-                if (isset($content[$error_field]) && $content[$error_field] !== $error_code) {
-                    static::$error_msg = $error_des ?: $content;
-                    return false;
-                }
-            } else {
-            }
-            static::$message = $content;
-            return true;
+        if ($result['code'] !== 200 || $content === false) {
+            throw new LWechatException($result['error_des'], $result['code'], $content);
         }
-    }
+        if (is_array($content)) {
+            if (isset($content[$error_field]) && $content[$error_field] !== $error_code) {
+                throw new LWechatException($content[$errmsg_field], $content[$error_field], $content);
+            }
+        }
 
-    /**
-     * 返回成功消息
-     *
-     * @description
-     * @example
-     * @author LittleMo 25362583@qq.com
-     * @since 2021-11-12
-     * @version 2021-11-12
-     * @return void
-     */
-    public function getMessage()
-    {
-        return self::$message;
-    }
-
-    /**
-     * 返回失败消息
-     *
-     * @description
-     * @example
-     * @author LittleMo 25362583@qq.com
-     * @since 2021-11-12
-     * @version 2021-11-12
-     * @return void
-     */
-    public function getErrorMsg()
-    {
-        return self::$error_msg;
-    }
-
-    /**
-     * 返回完整的消息
-     *
-     * @description
-     * @example
-     * @author LittleMo 25362583@qq.com
-     * @since 2021-11-12
-     * @version 2021-11-12
-     * @return void
-     */
-    public function getIntactMsg()
-    {
-        return self::$intact_msg;
+        return $content;
     }
 }

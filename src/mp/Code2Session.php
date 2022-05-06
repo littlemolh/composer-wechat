@@ -29,7 +29,7 @@ class Code2Session extends Base
      * @param string $code
      * @return array
      */
-    public function Code2Openid($code, $grant_type = 'authorization_code')
+    public function get($code, $grant_type = 'authorization_code')
     {
 
         $url = "https://api.weixin.qq.com/sns/jscode2session";
@@ -40,37 +40,5 @@ class Code2Session extends Base
             "grant_type" => $grant_type
         ];
         return $this->init_result((new HttpClient())->get($url, $params));
-    }
-
-    /**
-     * 解 加密后的敏感数据
-     *
-     * @description
-     * @example
-     * @author LittleMo 25362583@qq.com
-     * @since 2021-03-11
-     * @version 2021-03-11
-     * @param array $config
-     * @return array
-     */
-    public function Code2Data($encrypted_data, $iv = '', $session_key = '')
-    {
-        $result = [
-            'code' => 200,
-            'content' => [],
-            'error_des' => '',
-        ];
-
-        $pc = new WXBizDataCrypt($this->appid, $session_key);
-
-        $errCode = $pc->decryptData($encrypted_data, $iv, $data); // 其中$data包含用户的所有数据
-        if ($errCode == 0) {
-            $result['content'] = $data;
-        } else {
-            $result['error_des'] = $errCode;
-            $result['code'] = 0;
-        }
-
-        return $this->init_result($result);
     }
 }

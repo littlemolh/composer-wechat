@@ -11,8 +11,8 @@
 
 namespace littlemo\wechat\pay;
 
-use littlemo\utils\Common;
 use littlemo\utils\HttpClient;
+use littlemo\utils\Tools;
 
 /**
  * 微信分帐
@@ -21,11 +21,11 @@ use littlemo\utils\HttpClient;
  * @since 2021-11-25
  * @version 2021-11-25
  */
-class Profitsharing extends PayBase
+class Profitsharing extends Base
 {
 
 
-     /**
+    /**
      * 添加分账接收方
      * 官方文档 https://pay.weixin.qq.com/wiki/doc/apiv3/open/pay/chapter4_1_4.shtml
      * @description
@@ -46,7 +46,7 @@ class Profitsharing extends PayBase
             'account'        => $openid,
             'relation_type'  => $relation_type,
         );
-        $receiver = json_encode($tmp,JSON_UNESCAPED_UNICODE);
+        $receiver = json_encode($tmp, JSON_UNESCAPED_UNICODE);
         // API参数
         $params = [
             'appid'     => $this->appid, //商户账号appid
@@ -55,17 +55,17 @@ class Profitsharing extends PayBase
             'receiver'  => $receiver,
         ];
         // 生成签名
-        $params['sign'] = Common::createSign($params, ['key' => $this->key]);
+        $params['sign'] = Tools::createSign($params, ['key' => $this->key]);
         // 请求API
         $url = 'https://api.mch.weixin.qq.com/pay/profitsharingaddreceiver';
 
         $result = (new HttpClient())->post($url, HttpClient::array_to_xml($params));
 
-        return $this->init_result($result);
+        return $this->parseResult($result);
     }
 
 
-     /**
+    /**
      * 删除分账接收方
      * 官方文档 https://pay.weixin.qq.com/wiki/doc/apiv3/open/pay/chapter4_1_4.shtml
      * 
@@ -82,20 +82,20 @@ class Profitsharing extends PayBase
             'appid'     => $this->appid, //商户账号appid
             'type'      => $type, //商户号
             'account'   => $openid,
-          
+
         ];
         // 生成签名
-        $params['sign'] = Common::createSign($params, ['key' => $this->key]);
+        $params['sign'] = Tools::createSign($params, ['key' => $this->key]);
         // 请求API
         $url = 'https://api.mch.weixin.qq.com/v3/profitsharing/receivers/delete';
 
         $result = (new HttpClient())->post($url, HttpClient::array_to_xml($params));
 
-        return $this->init_result($result);
+        return $this->parseResult($result);
     }
 
 
-      /**
+    /**
      * 分账
      * @param $order_no
      * @param $out_order_no
@@ -105,16 +105,16 @@ class Profitsharing extends PayBase
      * @return bool
      * @throws BaseException
      */
-    public function profitsharing($order_no, $out_order_no,$openid, $amount,$desc, $type)
+    public function profitsharing($order_no, $out_order_no, $openid, $amount, $desc, $type)
     {
         $tmp = array(
-              'type'        => $type,
-              'account'     => $openid,
-              'amount'      => intval($amount),
-              'description' => $desc,
+            'type'        => $type,
+            'account'     => $openid,
+            'amount'      => intval($amount),
+            'description' => $desc,
         );
         $receivers[] = $tmp;
-        $receivers = json_encode($receivers,JSON_UNESCAPED_UNICODE);
+        $receivers = json_encode($receivers, JSON_UNESCAPED_UNICODE);
         // API参数
         $params = [
             'appid'          => $this->appid, //商户账号appid
@@ -125,16 +125,16 @@ class Profitsharing extends PayBase
             'receivers'      => $receivers
         ];
         // 生成签名
-        $params['sign'] = Common::createSign($params, ['key' => $this->key]);
+        $params['sign'] = Tools::createSign($params, ['key' => $this->key]);
         // 请求API
         $url = 'https://api.mch.weixin.qq.com/secapi/pay/profitsharing';
 
         $result = (new HttpClient())->post($url, HttpClient::array_to_xml($params));
 
-        return $this->init_result($result);
+        return $this->parseResult($result);
     }
 
-   
+
     /**
      * 分账完结
      * @param $order_no
@@ -154,14 +154,12 @@ class Profitsharing extends PayBase
             'description'    => '分账已完成'
         ];
         // 生成签名
-        $params['sign'] = Common::createSign($params, ['key' => $this->key]);
+        $params['sign'] = Tools::createSign($params, ['key' => $this->key]);
         // 请求API
         $url = 'https://api.mch.weixin.qq.com/secapi/pay/profitsharingfinish';
 
         $result = (new HttpClient())->post($url, HttpClient::array_to_xml($params));
 
-        return $this->init_result($result);
+        return $this->parseResult($result);
     }
-
-
 }

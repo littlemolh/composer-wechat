@@ -12,8 +12,8 @@
 namespace littlemo\wechat\pay;
 
 
-use littlemo\utils\Common;
 use littlemo\utils\HttpClient;
+use littlemo\utils\Tools;
 
 /**
  * 现金红包
@@ -24,7 +24,7 @@ use littlemo\utils\HttpClient;
  * @since 2021-09-25
  * @version 2021-09-25
  */
-class Redpack extends PayBase
+class Redpack extends Base
 {
 
 
@@ -137,7 +137,7 @@ class Redpack extends PayBase
         $redpack = self::$redpack;
         $params = [];
 
-        $params['nonce_str'] = Common::createNonceStr(); //随机字符串
+        $params['nonce_str'] = Tools::createNonceStr(32); //随机字符串
 
         $params['mch_billno'] = self::$no; //商户订单号	
         $params['mch_id'] = $this->mchid; //商户号
@@ -165,7 +165,7 @@ class Redpack extends PayBase
          */
         !empty(self::$redpack['scene_id']) && $params['scene_id'] = self::$redpack['scene_id'];
 
-        $params['sign'] = Common::createSign($params, ['key' => $this->key]); //签名
+        $params['sign'] = Tools::createSign($params, ['key' => $this->apiv2key]); //签名
 
         $result = (new HttpClient())->post($url, HttpClient::array_to_xml($params), [], [], [
             'cert_type' => 'PEM',
@@ -174,7 +174,7 @@ class Redpack extends PayBase
             'key' => $this->sslKeyPath,
         ]);
 
-        return $this->init_result($result);
+        return $this->parseResult($result);
     }
 
 
@@ -205,13 +205,13 @@ class Redpack extends PayBase
 
         $params = [];
 
-        $params['nonce_str'] =  Common::createNonceStr(); //随机字符串
+        $params['nonce_str'] =  Tools::createNonceStr(32); //随机字符串
         $params['mch_billno'] = self::$no; //商户订单号	
         $params['mch_id'] = $this->mchid; //商户号
         $params['appid'] = $this->appid; //公众账号appid 公众号的appid或小程序的appid（在mp.weixin.qq.com申请的）或APP的appid（在open.weixin.qq.com申请的）
         $params['bill_type'] = $bill_type; //MCHT:通过商户订单号获取红包信息。
 
-        $params['sign'] = Common::createSign($params, ['key' => $this->key]); //签名
+        $params['sign'] = Tools::createSign($params, ['key' => $this->apiv2key]); //签名
 
         $result = (new HttpClient())->post($url, HttpClient::array_to_xml($params), [], [], [
             'cert_type' => 'PEM',
@@ -220,6 +220,6 @@ class Redpack extends PayBase
             'key' => $this->sslKeyPath,
         ]);
 
-        return $this->init_result($result);
+        return $this->parseResult($result);
     }
 }

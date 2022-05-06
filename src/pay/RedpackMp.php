@@ -11,8 +11,8 @@
 
 namespace littlemo\wechat\pay;
 
-use littlemo\utils\Common;
 use littlemo\utils\HttpClient;
+use littlemo\utils\Tools;
 
 /**
  * 现金红包
@@ -23,7 +23,7 @@ use littlemo\utils\HttpClient;
  * @since 2021-09-25
  * @version 2021-09-25
  */
-class RedpackMp extends PayBase
+class RedpackMp extends Base
 {
 
     /**
@@ -132,7 +132,7 @@ class RedpackMp extends PayBase
 
         $params = [];
 
-        $params['nonce_str'] = Common::createNonceStr(); //随机字符串
+        $params['nonce_str'] = Tools::createNonceStr(); //随机字符串
 
         $params['mch_billno'] = self::$no; //商户订单号	
         $params['mch_id'] = $this->mchid; //商户号
@@ -160,7 +160,7 @@ class RedpackMp extends PayBase
          */
         !empty(self::$redpack['scene_id']) && $params['scene_id'] = self::$redpack['scene_id'];
 
-        $params['sign'] = Common::createSign($params, ['key' => $this->key]); //签名
+        $params['sign'] = Tools::createSign($params, ['key' => $this->apiv2key]); //签名
 
         $result = (new HttpClient())->post($url, HttpClient::array_to_xml($params), [], [], [
             'cert_type' => 'PEM',
@@ -169,7 +169,7 @@ class RedpackMp extends PayBase
             'key' => $this->sslKeyPath,
         ]);
 
-        return $this->init_result($result);
+        return $this->parseResult($result);
     }
 
     /**
@@ -186,7 +186,7 @@ class RedpackMp extends PayBase
     public function biz_red_packet($package, $timeStamp = '', $nonceStr = '')
     {
         $timeStamp = (string)($timeStamp ?: time());
-        $nonceStr = $nonceStr ?: Common::createNonceStr();
+        $nonceStr = $nonceStr ?: Tools::createNonceStr();
         /**
          * 小程序端调用方式
          *
@@ -205,7 +205,7 @@ class RedpackMp extends PayBase
         $params['timeStamp'] = $timeStamp; // 支付签名时间戳
         $params['nonceStr'] =  $nonceStr; //随机字符串// 支付签名随机串，不长于 32 位
         $params['package'] =  urlencode($package); //扩展字段，由商户传入
-        $params['paySign'] = Common::createSign($params); // 支付签名
+        $params['paySign'] = Tools::createSign($params); // 支付签名
 
         $params['signType'] =  'MD5'; //签名方式
 
@@ -239,13 +239,13 @@ class RedpackMp extends PayBase
 
         $params = [];
 
-        $params['nonce_str'] = Common::createNonceStr(); //随机字符串
+        $params['nonce_str'] = Tools::createNonceStr(); //随机字符串
         $params['mch_billno'] = self::$no; //商户订单号	
         $params['mch_id'] = $this->mchid; //商户号
         $params['appid'] = $this->appid; //公众账号appid 公众号的appid或小程序的appid（在mp.weixin.qq.com申请的）或APP的appid（在open.weixin.qq.com申请的）
         $params['bill_type'] = $bill_type; //MCHT:通过商户订单号获取红包信息。
 
-        $params['sign'] = Common::createSign($params, ['key' => $this->key]); //签名
+        $params['sign'] = Tools::createSign($params, ['key' => $this->apiv2key]); //签名
 
         $result = (new HttpClient())->post($url, HttpClient::array_to_xml($params), [], [], [
             'cert_type' => 'PEM',
@@ -254,6 +254,6 @@ class RedpackMp extends PayBase
             'key' => $this->sslKeyPath,
         ]);
 
-        return $this->init_result($result);
+        return $this->parseResult($result);
     }
 }
