@@ -11,7 +11,7 @@ namespace littlemo\wechat\core;
  * @since 2022-04-29
  * @version 2022-04-29
  */
-class lWechatException extends \Exception
+class LWechatException extends \Exception
 {
     /**
      * DbException constructor.
@@ -23,8 +23,8 @@ class lWechatException extends \Exception
 
     public function __construct($message = "", $code = 0, $data = [])
     {
-        $this->message = $message;
-        $this->code = $code;
+        parent::__construct($message, (int)$code);
+     
         $this->data = $data;
     }
 

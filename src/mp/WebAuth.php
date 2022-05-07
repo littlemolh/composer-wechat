@@ -3,7 +3,7 @@
 namespace littlemo\wechat\mp;
 
 use littlemo\utils\HttpClient;
-use littlemo\wechat\core\Base;
+
 
 /**
  * TODO 微信网页授权

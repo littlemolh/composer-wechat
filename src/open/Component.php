@@ -15,7 +15,7 @@ namespace littlemo\wechat\open;
 
 
 use littlemo\utils\HttpClient;
-use littlemo\wechat\core\Base;
+
 
 /**
  * 微信第三方平台相关接口

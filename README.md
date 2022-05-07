@@ -55,7 +55,7 @@ $Class = new Class($appid , $secret, $mchid , $key , $certPath, $keyPath );
 
 ```php
 use littlemo\wechat\Class;
-use littlemo\wechat\core\lWechatException;
+use littlemo\wechat\core\LWechatException;
 
 $Class = new Class($appid, $appkey);
 
@@ -71,7 +71,7 @@ if ($result) {
 
 try{
     $data = $Class->token()
-}catch(lWechatException $e){
+}catch(LWechatException $e){
     print_r('错误代码：'.$e->getCode());
     print_r('错误提示：'.$e->getMessage());
     print_r('完整的内容：'.json_encode($e->getData()));
