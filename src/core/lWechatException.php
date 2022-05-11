@@ -24,7 +24,7 @@ class LWechatException extends \Exception
     public function __construct($message = "", $code = 0, $data = [])
     {
         parent::__construct($message, (int)$code);
-     
+
         $this->data = $data;
     }
 
