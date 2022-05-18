@@ -144,17 +144,11 @@ class Template extends Base
     public function send($access_token, $touser, $template_id, array $data, $url = '', $miniprogram = [])
     {
 
-        $url = "https://api.weixin.qq.com/cgi-bin/message/template/send";
-        $params = [
-            "access_token" =>  $access_token,
-        ];
-        $body = compact('touser', 'template_id',  'data');
-        if ($url) {
-            $body['url'] = $url;
-        }
-        if ($url) {
-            $body['miniprogram'] = $miniprogram;
-        }
-        return $this->init_result((new HttpClient())->post($url, $body, $params));
+        $api = "https://api.weixin.qq.com/cgi-bin/message/template/send";
+
+        $params = compact('access_token');
+        $body = compact('touser', 'template_id',  'data', 'url', 'miniprogram');
+
+        return $this->init_result((new HttpClient())->post($api, $body, $params));
     }
 }
