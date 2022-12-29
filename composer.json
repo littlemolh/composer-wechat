@@ -18,7 +18,8 @@
     ],
     "require": {
         "php": "^7.0",
-        "littlemo/utils": "~1.2.0"
+        "littlemo/utils": "~1.2.0",
+        "wechatpay/wechatpay": "*"
     },
     "require-dev": {},
     "autoload": {
