@@ -234,13 +234,13 @@ class  Base
         }
     }
 
-    protected function get(string $chain, array $body)
+    protected function get(string $chain, array $body, array $patn = [])
     {
         // var_dump($body);
         try {
             $resp = $this->instance
                 ->chain($chain)
-                ->get(['query' => $body]);
+                ->get(array_merge(['query' => $body], $patn));
             // var_dump($resp->getStatusCode());
             // var_dump($resp->getBody());
             return (array)json_decode($resp->getBody(), true);

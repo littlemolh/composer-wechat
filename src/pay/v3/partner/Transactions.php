@@ -34,17 +34,13 @@ class  Transactions extends \littlemo\wechat\pay\v3\Base
 
     protected function post(string $chain, array $body)
     {
-
-        $body['sp_mchid'] = $this->mchid;
-        $body['sub_mchid'] = $this->subMchid;
         return parent::post($chain, $body);
     }
 
-    protected function get(string $chain, array $body)
+    protected function get(string $chain, array $body, array $path = [])
     {
-        $body['sp_mchid'] = $this->mchid;
-        $body['sub_mchid'] = $this->subMchid;
-        return parent::get($chain, $body);
+
+        return parent::get($chain, $body, $path);
     }
 
 
@@ -68,6 +64,10 @@ class  Transactions extends \littlemo\wechat\pay\v3\Base
 
         $chain = 'v3/pay/partner/transactions/jsapi';
 
+        $body['sub_mchid'] = $this->subMchid;
+        $body['sp_mchid'] = $this->mchid;
+        $body['sp_appid'] = $this->appid;
+        $body['sub_appid'] = $this->subAppid;
         //订单金额信息
         // [
         //     'total'    => 1, //订单总金额，单位为分。 示例值：100
@@ -95,9 +95,7 @@ class  Transactions extends \littlemo\wechat\pay\v3\Base
         if ($scene_info) {
             $body['scene_info']  = $scene_info;
         }
-        $body['sp_appid'] = $this->appid;
-        $body['sub_appid'] = $this->subAppid;
-        var_dump($body);
+
         return $this->post($chain, $body);
     }
 
@@ -115,7 +113,7 @@ class  Transactions extends \littlemo\wechat\pay\v3\Base
     {
         $data = [];
         $data['appId'] =  $this->subAppid;
-        $data['timeStamp'] = time();
+        $data['timeStamp'] = (string)time();
         $data['nonceStr'] = Tools::createNonceStr(32, ['A', '0']);
         $data['package'] = 'prepay_id=' . $prepay_id;
         $data['signType'] = 'RSA';
@@ -143,7 +141,9 @@ class  Transactions extends \littlemo\wechat\pay\v3\Base
     public function getResultById($transaction_id)
     {
         $chain = 'v3/pay/partner/transactions/id/' . $transaction_id;
-        return $this->get($chain, []);
+        $body['sp_mchid'] = $this->mchid;
+        $body['sub_mchid'] = $this->subMchid;
+        return $this->get($chain, $body);
     }
 
     /**
@@ -158,8 +158,10 @@ class  Transactions extends \littlemo\wechat\pay\v3\Base
      */
     public function getResultByOutTradeNo($out_trade_no)
     {
-        $chain = 'v3/pay/partner/transactions/out-trade-no/' . $out_trade_no;
-        return $this->get($chain, []);
+        $chain = 'v3/pay/partner/transactions/out-trade-no/{out_trade_no}';
+        $body['sp_mchid'] = $this->mchid;
+        $body['sub_mchid'] = $this->subMchid;
+        return $this->get($chain, [], compact('out_trade_no'));
     }
 
     /**
@@ -174,8 +176,10 @@ class  Transactions extends \littlemo\wechat\pay\v3\Base
      */
     public function close($out_trade_no)
     {
-        $chain = 'v3/pay/partner/transactions/out-trade-no/' . $out_trade_no . '/close';
-        return $this->post($chain, []);
+        $chain = 'v3/pay/partner/transactions/out-trade-no/{out_trade_no}/close';
+        $body['sp_mchid'] = $this->mchid;
+        $body['sub_mchid'] = $this->subMchid;
+        return $this->post($chain, $body, compact('out_trade_no'));
     }
 
     /**
@@ -193,6 +197,8 @@ class  Transactions extends \littlemo\wechat\pay\v3\Base
     public function refunds(array $body, array $amount, array $goods_detail = [])
     {
         $chain = 'v3/refund/domestic/refunds';
+
+        $body['sub_mchid'] = $this->subMchid;
 
         if (!isset($amount['currency']) || !$amount['currency']) {
             $amount['currency'] = 'CNY';
