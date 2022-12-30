@@ -17,6 +17,7 @@ use littlemo\wechat\core\LWechatException;
 use WeChatPay\Builder;
 use WeChatPay\Crypto\Rsa;
 use WeChatPay\Util\PemUtil;
+use WeChatPay\Transformer;
 
 /**
  * 微信支付公共方法
@@ -284,6 +285,7 @@ class  Base
             throw new LWechatException($result['error_des']);
         }
         $content = simplexml_load_string($content, "SimpleXMLElement", LIBXML_NOCDATA);
+        $content = Transformer::toArray($content);;
         $content = $content !== false ? json_encode($content) : $content;
         $content = $content !== false ? json_decode($content) : $content;
         if ($content->$error_field != $error_code) {
