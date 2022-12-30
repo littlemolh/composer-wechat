@@ -20,6 +20,7 @@ use WeChatPay\Crypto\AesGcm;
 use WeChatPay\Formatter;
 use WeChatPay\Util\PemUtil;
 
+
 /**
  * 基础支付
  *
@@ -100,32 +101,32 @@ class  Transactions extends \littlemo\wechat\pay\v3\Base
     }
 
     /**
-     * 小程序支付参数
+     * jsapiSign支付签名
      * @description
      * @example
      * @author LittleMo 25362583@qq.com
      * @since 2022-04-15
      * @version 2022-04-15
      * @param string $prepay_id 预支付交易会话标识
-     * @return void
+     * @return array
      */
-    public function wxRequRestPaymentData($prepay_id)
+    public function jsapiSign(string $prepay_id): array
     {
-        $data = [];
-        $data['appId'] =  $this->subAppid;
-        $data['timeStamp'] = (string)time();
-        $data['nonceStr'] = Tools::createNonceStr(32, ['A', '0']);
-        $data['package'] = 'prepay_id=' . $prepay_id;
-        $data['signType'] = 'RSA';
-        $message = $data['appId'] . "\n" .
-            $data['timeStamp'] . "\n" .
-            $data['nonceStr'] . "\n" .
-            $data['package']  . "\n";
 
-        $mch_private_key = openssl_get_privatekey(file_get_contents($this->sslKeyPath));
-        openssl_sign($message, $raw_sign, $mch_private_key, 'sha256WithRSAEncryption');
-        $data['paySign'] = base64_encode($raw_sign);
-        return $data;
+        $merchantPrivateKeyFilePath = $this->sslKeyPath;
+        $merchantPrivateKeyInstance = Rsa::from($merchantPrivateKeyFilePath);
+
+        $params = [
+            'appId'     => $this->subAppid,
+            'timeStamp' => (string)Formatter::timestamp(),
+            'nonceStr'  => Formatter::nonce(),
+            'package'   => 'prepay_id=' . $prepay_id,
+        ];
+        $params += ['paySign' => Rsa::sign(
+            Formatter::joinedByLineFeed(...array_values($params)),
+            $merchantPrivateKeyInstance
+        ), 'signType' => 'RSA'];
+        return $params;
     }
 
     /**
@@ -161,7 +162,7 @@ class  Transactions extends \littlemo\wechat\pay\v3\Base
         $chain = 'v3/pay/partner/transactions/out-trade-no/{out_trade_no}';
         $body['sp_mchid'] = $this->mchid;
         $body['sub_mchid'] = $this->subMchid;
-        return $this->get($chain, [], compact('out_trade_no'));
+        return $this->get($chain, $body, compact('out_trade_no'));
     }
 
     /**
