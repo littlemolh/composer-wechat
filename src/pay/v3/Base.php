@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | Little Mo - Tool [ WE CAN DO IT JUST TIDY UP IT ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2021 http://ggui.cn All rights reserved.
+// | Copyright (c) 2023 http://ggui.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -18,9 +18,11 @@ use WeChatPay\Builder;
 use WeChatPay\Crypto\Rsa;
 use WeChatPay\Util\PemUtil;
 use WeChatPay\Transformer;
+use WeChatPay\Formatter;
+use WeChatPay\Crypto\AesGcm;
 
 /**
- * 微信支付公共方法
+ * 微信支付V3公共方法
  *
  * @description
  * @example
@@ -118,9 +120,30 @@ class  Base
      */
     protected $instance = null;
 
+    /**
+     * 平台公钥实例
+     * @var resource
+     * @description
+     * @example
+     * @author LittleMo 25362583@qq.com
+     * @since 2023-03-13
+     * @version 2023-03-13
+     */
+    protected static $platformPublicKeyInstance = null;
 
     /**
-     * 狗仔函数
+     * 平台公钥序列号 从「微信支付平台证书」中获取的「证书序列号」
+     * @var string
+     * @description
+     * @example
+     * @author LittleMo 25362583@qq.com
+     * @since 2023-03-13
+     * @version 2023-03-13
+     */
+    protected static $platformCertificateSerial = null;
+
+    /**
+     * 构造函数
      * @description
      * @example
      * @author LittleMo 25362583@qq.com
@@ -133,14 +156,15 @@ class  Base
      */
     public function __construct(array $certPath, array  $mchid,  string $apiv3Key = null, array $appid = [])
     {
-        // 证书
+        // 证书 - 公钥
         if (isset($certPath['public'])) {
             $this->sslCertPath = 'file:///' . $certPath['public'];
         }
+        // 证书 - 私钥
         if (isset($certPath['private'])) {
             $this->sslKeyPath = 'file:///' . $certPath['private'];
         }
-
+        // 证书 - 平台
         if (isset($certPath['platform'])) {
             $this->platformCertPath = 'file:///' . $certPath['platform'];
         }
@@ -184,10 +208,10 @@ class  Base
         // $merchantCertificateSerial = '74D657DDCBB881F684BA1D94A0CCE6453B4E86F7';
         // 从本地文件中加载「微信支付平台证书」，用来验证微信支付应答的签名
         // $platformCertificateFilePath = $this->platformCertPath; //'file:///' . dirname(__DIR__, 3) . '/demo/pay/cert/wechatpay_39C8FA681DDDB06C88C8D851294CDA5E86376089.pem';
-        $platformPublicKeyInstance = Rsa::from($this->platformCertPath, Rsa::KEY_TYPE_PUBLIC);
+        static::$platformPublicKeyInstance = Rsa::from($this->platformCertPath, Rsa::KEY_TYPE_PUBLIC);
 
         // 从「微信支付平台证书」中获取「证书序列号」
-        $platformCertificateSerial = PemUtil::parseCertificateSerialNo($this->platformCertPath);
+        static::$platformCertificateSerial = PemUtil::parseCertificateSerialNo($this->platformCertPath);
 
         // 构造一个 APIv3 客户端实例
         $this->instance = Builder::factory([
@@ -195,7 +219,7 @@ class  Base
             'serial'     => $merchantCertificateSerial,
             'privateKey' => $merchantPrivateKeyInstance,
             'certs'      => [
-                $platformCertificateSerial => $platformPublicKeyInstance,
+                static::$platformCertificateSerial => static::$platformPublicKeyInstance,
             ],
         ]);
 
@@ -206,13 +230,19 @@ class  Base
         // echo $resp->getBody(), PHP_EOL;
     }
 
-    protected function post(string $chain, array $body)
+    public static function encrypt(string $msg): string
     {
-        // var_dump($body);
+        return Rsa::encrypt($msg, static::$platformPublicKeyInstance);
+    }
+
+    protected function post(string $chain, array $json, array $headers = [])
+    {
+        // var_dump($json);
+        // var_dump($headers);
         try {
             $resp = $this->instance
                 ->chain($chain)
-                ->post(['json' => $body]);
+                ->post(compact('json', 'headers'));
             // var_dump($resp->getStatusCode());
             // var_dump($resp->getBody());
             return (array)json_decode($resp->getBody(), true);
@@ -235,13 +265,13 @@ class  Base
         }
     }
 
-    protected function get(string $chain, array $body, array $patn = [])
+    protected function get(string $chain, array $query, array $patn = [])
     {
-        // var_dump($body);
+        // var_dump($query);
         try {
             $resp = $this->instance
                 ->chain($chain)
-                ->get(array_merge(['query' => $body], $patn));
+                ->get(array_merge(compact('query'), $patn));
             // var_dump($resp->getStatusCode());
             // var_dump($resp->getBody());
             return (array)json_decode($resp->getBody(), true);
@@ -262,6 +292,60 @@ class  Base
             // var_dump($e->getTraceAsString());
             throw new LWechatException($content['message'], $content['code'], $content);
         }
+    }
+
+    /**
+     * 验证并解析支付通知
+     * @description https://pay.weixin.qq.com/wiki/doc/apiv3_partner/apis/chapter4_1_5.shtml
+     * @example
+     * @author LittleMo 25362583@qq.com
+     * @since 2022-12-28
+     * @version 2022-12-28
+     * @return void
+     */
+    public function notify()
+    {
+        $inWechatpaySignature = $_SERVER['HTTP_WECHATPAY_SIGNATURE'] ?? ''; // 请根据实际情况获取
+        $inWechatpayTimestamp = $_SERVER['HTTP_WECHATPAY_TIMESTAMP'] ?? ''; // 请根据实际情况获取
+        $inWechatpaySerial = $_SERVER['HTTP_WECHATPAY_SERIAL'] ?? ''; // 请根据实际情况获取
+        $inWechatpayNonce = $_SERVER['HTTP_WECHATPAY_NONCE'] ?? ''; // 请根据实际情况获取
+        $inRequestID = $_SERVER['HTTP_REQUEST_ID'] ?? ''; // 请根据实际情况获取
+        $inBody = file_get_contents('php://input'); // 请根据实际情况获取，例如: file_get_contents('php://input');
+
+        $apiv3Key =  $this->apiv3Key; // 在商户平台上设置的APIv3密钥
+
+        // 根据通知的平台证书序列号，查询本地平台证书文件，
+        // 假定为 `/path/to/wechatpay/inWechatpaySerial.pem`
+        $platformPublicKeyInstance = Rsa::from($this->platformCertPath, Rsa::KEY_TYPE_PUBLIC);
+
+        // 检查通知时间偏移量，允许5分钟之内的偏移
+        $timeOffsetStatus = 300 >= abs(Formatter::timestamp() - (int)$inWechatpayTimestamp);
+        if (!$timeOffsetStatus) {
+            throw new LWechatException('超过五分钟了');
+        }
+        $verifiedStatus = Rsa::verify(
+            // 构造验签名串
+            Formatter::joinedByLineFeed($inWechatpayTimestamp, $inWechatpayNonce, $inBody),
+            $inWechatpaySignature,
+            $platformPublicKeyInstance
+        );
+        if (!$verifiedStatus) {
+            throw new LWechatException('签名验证失败');
+        }
+        // 转换通知的JSON文本消息为PHP Array数组
+        $inBodyArray = (array)json_decode($inBody, true);
+        // 使用PHP7的数据解构语法，从Array中解构并赋值变量
+        ['resource' => [
+            'ciphertext'      => $ciphertext,
+            'nonce'           => $nonce,
+            'associated_data' => $aad
+        ]] = $inBodyArray;
+        // 加密文本消息解密
+        $inBodyResource = AesGcm::decrypt($ciphertext, $apiv3Key, $nonce, $aad);
+        // 把解密后的文本转换为PHP Array数组
+        $inBodyResourceArray = (array)json_decode($inBodyResource, true);
+        // print_r($inBodyResourceArray);// 打印解密后的结果
+        return $inBodyResourceArray;
     }
 
     /**

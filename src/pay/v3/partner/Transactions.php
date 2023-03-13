@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | Little Mo - Tool [ WE CAN DO IT JUST TIDY UP IT ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2021 http://ggui.cn All rights reserved.
+// | Copyright (c) 2023 http://ggui.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -12,13 +12,11 @@
 
 namespace littlemo\wechat\pay\v3\partner;
 
-use littlemo\utils\Tools;
 use littlemo\wechat\core\LWechatException;
 
 use WeChatPay\Crypto\Rsa;
-use WeChatPay\Crypto\AesGcm;
+
 use WeChatPay\Formatter;
-use WeChatPay\Util\PemUtil;
 
 
 /**
@@ -32,19 +30,6 @@ use WeChatPay\Util\PemUtil;
  */
 class  Transactions extends \littlemo\wechat\pay\v3\Base
 {
-
-    protected function post(string $chain, array $body)
-    {
-        return parent::post($chain, $body);
-    }
-
-    protected function get(string $chain, array $body, array $path = [])
-    {
-
-        return parent::get($chain, $body, $path);
-    }
-
-
     /**
      * JSAPI下单
      * @description https://pay.weixin.qq.com/wiki/doc/apiv3_partner/apis/chapter4_1_1.shtml
@@ -74,7 +59,11 @@ class  Transactions extends \littlemo\wechat\pay\v3\Base
         //     'total'    => 1, //订单总金额，单位为分。 示例值：100
         //     'currency' => 'CNY' //CNY：人民币，境内商户号仅支持人民币。 示例值：CNY
         // ];
-        $body['amount']  = $amount;
+
+        $body['amount']  = [
+            'total' => (int)$amount['total']
+        ];
+
         //支付者信息 下面两个二选一
         // [
         //     'sp_openid' => '', //用户在服务商appid下的唯一标识。 下单前需获取到用户的Openid，Openid获取详见。
@@ -210,58 +199,5 @@ class  Transactions extends \littlemo\wechat\pay\v3\Base
             $body['goods_detail'] = $goods_detail;
         }
         return $this->post($chain, $body);
-    }
-    /**
-     * 验证并解析支付通知
-     * @description https://pay.weixin.qq.com/wiki/doc/apiv3_partner/apis/chapter4_1_5.shtml
-     * @example
-     * @author LittleMo 25362583@qq.com
-     * @since 2022-12-28
-     * @version 2022-12-28
-     * @return void
-     */
-    public function notify()
-    {
-        $inWechatpaySignature = $_SERVER['HTTP_WECHATPAY_SIGNATURE'] ?? ''; // 请根据实际情况获取
-        $inWechatpayTimestamp = $_SERVER['HTTP_WECHATPAY_TIMESTAMP'] ?? ''; // 请根据实际情况获取
-        $inWechatpaySerial = $_SERVER['HTTP_WECHATPAY_SERIAL'] ?? ''; // 请根据实际情况获取
-        $inWechatpayNonce = $_SERVER['HTTP_WECHATPAY_NONCE'] ?? ''; // 请根据实际情况获取
-        $inRequestID = $_SERVER['HTTP_REQUEST_ID'] ?? ''; // 请根据实际情况获取
-        $inBody = file_get_contents('php://input'); // 请根据实际情况获取，例如: file_get_contents('php://input');
-
-        $apiv3Key =  $this->apiv3Key; // 在商户平台上设置的APIv3密钥
-
-        // 根据通知的平台证书序列号，查询本地平台证书文件，
-        // 假定为 `/path/to/wechatpay/inWechatpaySerial.pem`
-        $platformPublicKeyInstance = Rsa::from($this->platformCertPath, Rsa::KEY_TYPE_PUBLIC);
-
-        // 检查通知时间偏移量，允许5分钟之内的偏移
-        $timeOffsetStatus = 300 >= abs(Formatter::timestamp() - (int)$inWechatpayTimestamp);
-        if (!$timeOffsetStatus) {
-            throw new LWechatException('超过五分钟了');
-        }
-        $verifiedStatus = Rsa::verify(
-            // 构造验签名串
-            Formatter::joinedByLineFeed($inWechatpayTimestamp, $inWechatpayNonce, $inBody),
-            $inWechatpaySignature,
-            $platformPublicKeyInstance
-        );
-        if (!$verifiedStatus) {
-            throw new LWechatException('签名验证失败');
-        }
-        // 转换通知的JSON文本消息为PHP Array数组
-        $inBodyArray = (array)json_decode($inBody, true);
-        // 使用PHP7的数据解构语法，从Array中解构并赋值变量
-        ['resource' => [
-            'ciphertext'      => $ciphertext,
-            'nonce'           => $nonce,
-            'associated_data' => $aad
-        ]] = $inBodyArray;
-        // 加密文本消息解密
-        $inBodyResource = AesGcm::decrypt($ciphertext, $apiv3Key, $nonce, $aad);
-        // 把解密后的文本转换为PHP Array数组
-        $inBodyResourceArray = (array)json_decode($inBodyResource, true);
-        // print_r($inBodyResourceArray);// 打印解密后的结果
-        return $inBodyResourceArray;
     }
 }
