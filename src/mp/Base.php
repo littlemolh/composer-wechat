@@ -95,9 +95,9 @@ class Base
      * @since 2021-11-12
      * @version 2021-11-12
      * @param [type] $result
-     * @return void
+     * @return array
      */
-    protected function init_result($result, $error_field = 'errcode', $error_code = 0, $errmsg_field = 'errmsg')
+    protected function init_result($result, $error_field = 'errcode', $error_code = 0, $errmsg_field = 'errmsg'): array
     {
 
         $content =  !empty($result['content']) ? json_decode($result['content'], true) : $result['content'];
