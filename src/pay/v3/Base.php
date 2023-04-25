@@ -192,6 +192,15 @@ class  Base
         $this->init();
     }
 
+    /**
+     * 初始化
+     * @description
+     * @example
+     * @author LittleMo 25362583@qq.com
+     * @since 2023-03-24
+     * @version 2023-03-24
+     * @return void
+     */
     public function init()
     {
         // 设置参数
@@ -235,7 +244,19 @@ class  Base
         return Rsa::encrypt($msg, static::$platformPublicKeyInstance);
     }
 
-    protected function post(string $chain, array $json, array $headers = [])
+    /**
+     * POST请求
+     * @description
+     * @example
+     * @author LittleMo 25362583@qq.com
+     * @since 2023-03-24
+     * @version 2023-03-24
+     * @param string $chain
+     * @param array $json       JSON传参
+     * @param array $headers
+     * @return array
+     */
+    protected function post(string $chain, array $json, array $headers = []): array
     {
         // var_dump($json);
         // var_dump($headers);
@@ -265,7 +286,19 @@ class  Base
         }
     }
 
-    protected function get(string $chain, array $query, array $patn = [])
+    /**
+     * GET请求
+     * @description
+     * @example
+     * @author LittleMo 25362583@qq.com
+     * @since 2023-03-24
+     * @version 2023-03-24
+     * @param string $chain
+     * @param array $query  URL传参
+     * @param array $patn   路径参数
+     * @return array
+     */
+    protected function get(string $chain, array $query, array $patn = []): array
     {
         // var_dump($query);
         try {

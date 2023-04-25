@@ -12,6 +12,8 @@
 
 namespace littlemo\wechat\pay\v3\partner;
 
+use littlemo\wechat\core\LWechatException;
+
 /**
  * 分账
  * @description
@@ -23,6 +25,14 @@ namespace littlemo\wechat\pay\v3\partner;
 class  Profitsharing extends \littlemo\wechat\pay\v3\Base
 {
 
+    protected function post(string $chain, array $json, array $headers = []): array
+    {
+        $result = parent::post($chain, $json, $headers);
+        if (isset($result['code']) && !empty($result['code'])) {
+            throw new LWechatException($result['message'], $result['code'], $result);
+        }
+        return $result;
+    }
 
 
     /**
@@ -51,11 +61,16 @@ class  Profitsharing extends \littlemo\wechat\pay\v3\Base
 
         $body['transaction_id'] = $transaction_id;
         $body['out_order_no'] = $out_order_no;
+        foreach ($receivers as &$val) {
+            $val['amount'] = (int)$val['amount'];
+            $val['name'] = static::encrypt($val['amount']);
+        }
         $body['receivers'] = $receivers;
         $body['unfreeze_unsplit'] = $unfreeze_unsplit;
 
 
-        return $this->post($chain, $body);
+
+        return $this->post($chain, $body, ['Wechatpay-Serial' => static::$platformCertificateSerial]);
     }
 
     /**
@@ -226,7 +241,7 @@ class  Profitsharing extends \littlemo\wechat\pay\v3\Base
      * @param string $custom_relation   自定义的分账关系
      * @return array
      */
-    public function add(string $type, string $account, string $relation_type, string $name, string $custom_relation): array
+    public function add(string $type, string $account, string $relation_type, string $name, string $custom_relation = ''): array
     {
 
         $chain = 'v3/profitsharing/receivers/add';
@@ -234,11 +249,13 @@ class  Profitsharing extends \littlemo\wechat\pay\v3\Base
             'sub_mchid' => $this->subMchid,
             'appid' => $this->appid,
             'sub_appid' => $this->subAppid
-        ], compact('type', 'account', 'relation_type', 'custom_relation'));
+        ], compact('type', 'account', 'relation_type'));
         if (!empty($name)) {
             $body['name'] = static::encrypt($name);
         }
-        if (empty($body['custom_relation']))  unset($body['custom_relation']);
+        if (!empty($custom_relation)) {
+            $body['custom_relation'] = $custom_relation;
+        }
         return $this->post($chain, $body, ['Wechatpay-Serial' => static::$platformCertificateSerial]);
     }
 
