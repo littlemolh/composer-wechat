@@ -10,7 +10,7 @@
 // | Author: littlemo <25362583@qq.com>
 // +----------------------------------------------------------------------
 
-namespace littlemo\wechat\pay;
+namespace littlemo\wechat\pay\v2;
 
 use littlemo\wechat\core\LWechatException;
 
@@ -123,10 +123,12 @@ class  Base
      * @author LittleMo 25362583@qq.com
      * @since 2021-11-12
      * @version 2021-11-12
-     * @param sring $result
+     * @param sring $result 回调内容
+     * @param sring $code_field 状态码字段
+     * @param sring $success_code 成功状态码
      * @return void
      */
-    protected function parseResult($result = '', $error_field = 'result_code', $error_code = 'SUCCESS')
+    protected function parseResult(string $result = '', string $code_field = 'result_code', string $success_code = 'SUCCESS')
     {
 
         $code = $result['code'];
@@ -138,7 +140,7 @@ class  Base
         $content = simplexml_load_string($content, "SimpleXMLElement", LIBXML_NOCDATA);
         $content = $content !== false ? json_encode($content) : $content;
         $content = $content !== false ? json_decode($content) : $content;
-        if ($content->$error_field != $error_code) {
+        if ($content->$code_field != $success_code) {
             throw new LWechatException($content->err_code_des, $content->err_code, $content);
         }
         return $content;

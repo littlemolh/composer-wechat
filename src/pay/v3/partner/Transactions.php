@@ -13,10 +13,11 @@
 namespace littlemo\wechat\pay\v3\partner;
 
 use littlemo\wechat\core\LWechatException;
-
+use littlemo\wechat\pay\v3\Config;
 use WeChatPay\Crypto\Rsa;
 
 use WeChatPay\Formatter;
+
 
 
 /**
@@ -30,6 +31,115 @@ use WeChatPay\Formatter;
  */
 class  Transactions extends \littlemo\wechat\pay\v3\Base
 {
+    // 支付基础参数
+    private $body = [];
+    // 支付订单金额
+    private $amount = [];
+    // 支付支付者信息
+    private $payer = '';
+    // 支付结算信息
+    private $settle_info = '';
+    // 支付优惠功能
+    private $detail = '';
+    // 支付支付场景描述
+    private $scene_info = '';
+
+
+
+    /**
+     * 支付基础信息
+     * @description
+     * @example
+     * @author LittleMo 25362583@qq.com
+     * @since 2023-09-01
+     * @version 2023-09-01
+     * @param array $body
+     * @return Transactions
+     */
+    public function body(array $body): Transactions
+    {
+        $this->body = $body;
+        return $this;
+    }
+    /**
+     * 结算信息
+     * @description
+     * @example
+     * @author LittleMo 25362583@qq.com
+     * @since 2023-09-01
+     * @version 2023-09-01
+     * @param array $settle_info
+     * @return Transactions
+     */
+    public function settleInfo(array $settle_info = []): Transactions
+    {
+        $this->settle_info = $settle_info;
+        return $this;
+    }
+    /**
+     * 订单金额
+     * @description
+     * @example
+     * @author LittleMo 25362583@qq.com
+     * @since 2023-09-01
+     * @version 2023-09-01
+     * @param array $amount
+     * @return Transactions
+     */
+    public function amount(array $amount): Transactions
+    {
+        $this->amount = [
+            'total' => (int)$amount['total'], //订单总金额，单位为分。 示例值：100
+            'currency' => 'CNY', //CNY：人民币，境内商户号仅支持人民币。 示例值：CNY
+        ];
+        return $this;
+    }
+
+    public function payer(string $type, string $openid): Transactions
+    {
+        //支付者信息 下面两个二选一
+        // [
+        //     'sp_openid' => '', //用户在服务商appid下的唯一标识。 下单前需获取到用户的Openid，Openid获取详见。
+        //     'sub_openid' => '', //用户在子商户appid下的唯一标识。若传sub_openid，那sub_appid必填。下单前需获取到用户的Openid，
+        // ];
+        if (!in_array($type, ['sp_openid', 'sub_openid'])) {
+            throw new LWechatException('支付者信息类型不正确，可选项[sp_openid, sub_openid]');
+        }
+        $this->payer = [
+            $type => $openid
+        ];
+        return $this;
+    }
+    /**
+     * 优惠功能
+     * @description
+     * @example
+     * @author LittleMo 25362583@qq.com
+     * @since 2023-09-01
+     * @version 2023-09-01
+     * @param array $detail
+     * @return Transactions
+     */
+    public function detail(array $detail = []): Transactions
+    {
+        $this->detail = $detail;
+        return $this;
+    }
+    /**
+     * 场景信息
+     * @description
+     * @example
+     * @author LittleMo 25362583@qq.com
+     * @since 2023-09-01
+     * @version 2023-09-01
+     * @param array $scene_info
+     * @return Transactions
+     */
+    public function sceneInfo(array $scene_info = []): Transactions
+    {
+        $this->scene_info = $scene_info;
+        return $this;
+    }
     /**
      * JSAPI下单
      * @description https://pay.weixin.qq.com/wiki/doc/apiv3_partner/apis/chapter4_1_1.shtml
@@ -45,46 +155,25 @@ class  Transactions extends \littlemo\wechat\pay\v3\Base
      * @param array $scene_info     支付场景描述
      * @return void
      */
-    public function jsapi(array $body, array $amount, array $payer, array $settle_info = [], array $detail = [], array $scene_info = [])
+    public function jsapi()
     {
 
         $chain = 'v3/pay/partner/transactions/jsapi';
+        $body = $this->body;
 
-        $body['sub_mchid'] = $this->subMchid;
-        $body['sp_mchid'] = $this->mchid;
-        $body['sp_appid'] = $this->appid;
-        $body['sub_appid'] = $this->subAppid;
-        //订单金额信息
-        // [
-        //     'total'    => 1, //订单总金额，单位为分。 示例值：100
-        //     'currency' => 'CNY' //CNY：人民币，境内商户号仅支持人民币。 示例值：CNY
-        // ];
+        $body['sub_mchid'] = Config::$subMchid;
+        $body['sp_mchid'] = Config::$mchid;
+        $body['sp_appid'] = Config::$appid;
+        $body['sub_appid'] = Config::$subAppid;
 
-        $body['amount']  = [
-            'total' => (int)$amount['total']
-        ];
-
-        //支付者信息 下面两个二选一
-        // [
-        //     'sp_openid' => '', //用户在服务商appid下的唯一标识。 下单前需获取到用户的Openid，Openid获取详见。
-        //     'sub_openid' => '', //用户在子商户appid下的唯一标识。若传sub_openid，那sub_appid必填。下单前需获取到用户的Openid，
-        // ];
-        $body['payer']  = $payer;
-
+        $body['amount']  = $this->amount;
+        $body['payer']  = $this->payer;
         // 结算信息
-        if ($settle_info) {
-            $body['settle_info']  = $settle_info;
-        }
-
+        if ($this->settle_info) $body['settle_info']  = $this->settle_info;
         // 优惠功能
-        if ($detail) {
-            $body['detail']  = $detail;
-        }
-
+        if ($this->detail)  $body['detail']  = $this->detail;
         // 支付场景描述
-        if ($scene_info) {
-            $body['scene_info']  = $scene_info;
-        }
+        if ($this->scene_info)  $body['scene_info']  = $this->scene_info;
 
         return $this->post($chain, $body);
     }
@@ -102,9 +191,6 @@ class  Transactions extends \littlemo\wechat\pay\v3\Base
     public function jsapiSign(string $prepay_id): array
     {
 
-        $merchantPrivateKeyFilePath = $this->sslKeyPath;
-        $merchantPrivateKeyInstance = Rsa::from($merchantPrivateKeyFilePath);
-
         $params = [
             'appId'     => $this->subAppid,
             'timeStamp' => (string)Formatter::timestamp(),
@@ -113,9 +199,37 @@ class  Transactions extends \littlemo\wechat\pay\v3\Base
         ];
         $params += ['paySign' => Rsa::sign(
             Formatter::joinedByLineFeed(...array_values($params)),
-            $merchantPrivateKeyInstance
+            static::$privateKeyInstance
         ), 'signType' => 'RSA'];
         return $params;
+    }
+
+    /**
+     * Native下单API
+     * @description https://pay.weixin.qq.com/wiki/doc/apiv3_partner/apis/chapter4_4_1.shtml
+     * @example
+     * @author LittleMo 25362583@qq.com
+     * @since 2023-09-01
+     * @version 2023-09-01
+     * @return array
+     */
+    public function native(): array
+    {
+        $chain = 'v3/pay/partner/transactions/native';
+        $body = $this->body;
+        $body['sub_mchid'] = Config::$subMchid;
+        $body['sp_mchid'] = Config::$mchid;
+        $body['sp_appid'] = Config::$appid;
+        $body['sub_appid'] = Config::$subAppid;
+        $body['amount']  = $this->amount;
+        // 结算信息
+        if ($this->settle_info) $body['settle_info']  = $this->settle_info;
+        // 优惠功能
+        if ($this->detail)  $body['detail']  = $this->detail;
+        // 支付场景描述
+        if ($this->scene_info)  $body['scene_info']  = $this->scene_info;
+
+        return $this->post($chain, $body);
     }
 
     /**

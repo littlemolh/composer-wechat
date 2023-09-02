@@ -11,16 +11,7 @@
 ### 介绍
 公众号相关工具
 
-### 安装教程
 
-composer.json
-```json
-{
-    "require": {
-        "littlemo/wechat": "~1.5.0"
-    }
-}
-```
 ### 使用教程
 
 #### ticket

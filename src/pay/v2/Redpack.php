@@ -9,7 +9,7 @@
 // | Author: littlemo <25362583@qq.com>
 // +----------------------------------------------------------------------
 
-namespace littlemo\wechat\pay;
+namespace littlemo\wechat\pay\v2;
 
 
 use littlemo\utils\HttpClient;

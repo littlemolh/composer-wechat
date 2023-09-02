@@ -17,9 +17,13 @@ composer.json
 ```json
 {
     "require": {
-        "littlemo/wechat": "~1.5.0"
+        "littlemo/wechat": "1.7.*"
     }
 }
+```
+
+```shell
+composer require endroid/qr-code
 ```
 ### 使用教程
 

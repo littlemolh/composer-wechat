@@ -9,10 +9,9 @@
 // | Author: littlemo <25362583@qq.com>
 // +----------------------------------------------------------------------
 
-namespace littlemo\wechat\pay;
+namespace littlemo\wechat\pay\v2;
 
-use app\common\exception\LWPException;
-use littlemo\utils\Common;
+
 use littlemo\utils\HttpClient;
 use littlemo\utils\Tools;
 
