@@ -92,6 +92,7 @@ class  Transactions extends \littlemo\wechat\pay\v3\Base
             'total' => (int)$amount['total'], //订单总金额，单位为分。 示例值：100
             'currency' => 'CNY', //CNY：人民币，境内商户号仅支持人民币。 示例值：CNY
         ];
+
         return $this;
     }
 
@@ -192,14 +193,14 @@ class  Transactions extends \littlemo\wechat\pay\v3\Base
     {
 
         $params = [
-            'appId'     => $this->subAppid,
+            'appId'     => Config::$subAppid,
             'timeStamp' => (string)Formatter::timestamp(),
             'nonceStr'  => Formatter::nonce(),
             'package'   => 'prepay_id=' . $prepay_id,
         ];
         $params += ['paySign' => Rsa::sign(
             Formatter::joinedByLineFeed(...array_values($params)),
-            static::$privateKeyInstance
+            Config::$merchantPrivateKeyInstance
         ), 'signType' => 'RSA'];
         return $params;
     }
@@ -245,8 +246,8 @@ class  Transactions extends \littlemo\wechat\pay\v3\Base
     public function getResultById($transaction_id)
     {
         $chain = 'v3/pay/partner/transactions/id/' . $transaction_id;
-        $body['sp_mchid'] = $this->mchid;
-        $body['sub_mchid'] = $this->subMchid;
+        $body['sp_mchid'] = Config::$mchid;
+        $body['sub_mchid'] = Config::$subMchid;
         return $this->get($chain, $body);
     }
 
@@ -263,8 +264,8 @@ class  Transactions extends \littlemo\wechat\pay\v3\Base
     public function getResultByOutTradeNo($out_trade_no)
     {
         $chain = 'v3/pay/partner/transactions/out-trade-no/{out_trade_no}';
-        $body['sp_mchid'] = $this->mchid;
-        $body['sub_mchid'] = $this->subMchid;
+        $body['sp_mchid'] = Config::$mchid;
+        $body['sub_mchid'] = Config::$subMchid;
         return $this->get($chain, $body, compact('out_trade_no'));
     }
 
@@ -281,8 +282,8 @@ class  Transactions extends \littlemo\wechat\pay\v3\Base
     public function close($out_trade_no)
     {
         $chain = 'v3/pay/partner/transactions/out-trade-no/{out_trade_no}/close';
-        $body['sp_mchid'] = $this->mchid;
-        $body['sub_mchid'] = $this->subMchid;
+        $body['sp_mchid'] = Config::$mchid;
+        $body['sub_mchid'] = Config::$subMchid;
         return $this->post($chain, $body, compact('out_trade_no'));
     }
 
@@ -302,7 +303,7 @@ class  Transactions extends \littlemo\wechat\pay\v3\Base
     {
         $chain = 'v3/refund/domestic/refunds';
 
-        $body['sub_mchid'] = $this->subMchid;
+        $body['sub_mchid'] = Config::$subMchid;
 
         if (!isset($amount['currency']) || !$amount['currency']) {
             $amount['currency'] = 'CNY';

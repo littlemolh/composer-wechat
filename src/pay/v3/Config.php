@@ -54,20 +54,15 @@ class  Config
      */
     public static $apiKey = null;
 
-    /**
-     * APIv3 客户端实例
-     * @return \WeChatPay\Config
-     */
-    public static $instance = null;
 
     /**
      * 商户私钥实例
      */
-    public static $privateKeyInstance = null;
+    public static $merchantPrivateKeyInstance = null;
     /**
-     * 商户证书实例
+     * 商户证书序列号
      */
-    public static $certificateSerial = null;
+    public static $merchantCertificateSerial = null;
     /**
      * 平台公钥实例
      */
@@ -89,24 +84,24 @@ class  Config
      * @author LittleMo 25362583@qq.com
      * @since 2023-09-01
      * @version 2023-09-01
-     * @param string $public    公钥路径
-     * @param string $private   私钥路径
-     * @param string $platform  微信平台证书路径 获取方式https://github.com/wechatpay-apiv3/wechatpay-php/blob/main/bin/README.md
+     * @param string $merchantCertificateFilePath  商户证书路径
+     * @param string $merchantPrivateKeyFilePath   商户私钥路径
+     * @param string $platformCertificateFilePath  微信平台证书路径 获取方式https://github.com/wechatpay-apiv3/wechatpay-php/blob/main/bin/README.md
      * @return Config
      */
-    public function cert(string $public_path, string $private_path, string $platform_path = ''): Config
+    public function cert(string $merchantCertificateFilePath, string $merchantPrivateKeyFilePath, string $platformCertificateFilePath = ''): Config
     {
 
         // 从本地文件中加载「商户API私钥」，「商户API私钥」会用来生成请求的签名
-        static::$privateKeyInstance = Rsa::from('file:///' . $private_path, Rsa::KEY_TYPE_PRIVATE);
+        static::$merchantPrivateKeyInstance = Rsa::from('file:///' . $merchantPrivateKeyFilePath, Rsa::KEY_TYPE_PRIVATE);
         // 「商户API证书」的「证书序列号」
-        static::$certificateSerial = PemUtil::parseCertificateSerialNo('file:///' . $public_path);
-        // $certificateSerial = '74D657DDCBB881F684BA1D94A0CCE6453B4E86F7';
+        static::$merchantCertificateSerial = PemUtil::parseCertificateSerialNo('file:///' . $merchantCertificateFilePath);
+        // $merchantCertificateSerial = '74D657DDCBB881F684BA1D94A0CCE6453B4E86F7';
         // 从本地文件中加载「微信支付平台证书」，用来验证微信支付应答的签名
         // $platformCertificateFilePath = $this->platformCertPath; //'file:///' . dirname(__DIR__, 3) . '/demo/pay/cert/wechatpay_39C8FA681DDDB06C88C8D851294CDA5E86376089.pem';
-        static::$platformPublicKeyInstance = Rsa::from('file:///' . $platform_path, Rsa::KEY_TYPE_PUBLIC);
+        static::$platformPublicKeyInstance = Rsa::from('file:///' . $platformCertificateFilePath, Rsa::KEY_TYPE_PUBLIC);
         // 从「微信支付平台证书」中获取「证书序列号」
-        static::$platformCertificateSerial = PemUtil::parseCertificateSerialNo('file:///' . $platform_path);
+        static::$platformCertificateSerial = PemUtil::parseCertificateSerialNo('file:///' . $platformCertificateFilePath);
 
         return $this;
     }
@@ -140,7 +135,7 @@ class  Config
      * @since 2023-09-01
      * @version 2023-09-01
      * @param string $apiKey
-     * @return void
+     * @return Config
      */
     public function apiKey(string $apiKey): Config
     {

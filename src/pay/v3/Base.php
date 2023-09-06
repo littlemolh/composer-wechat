@@ -99,8 +99,8 @@ class  Base
             // 构造一个 APIv3 客户端实例
             $instance = Builder::factory([
                 'mchid'      => Config::$mchid,
-                'serial'     => Config::$certificateSerial,
-                'privateKey' => Config::$privateKeyInstance,
+                'serial'     => Config::$merchantCertificateSerial,
+                'privateKey' => Config::$merchantPrivateKeyInstance,
                 'certs'      => [
                     Config::$platformCertificateSerial => Config::$platformPublicKeyInstance,
                 ],
