@@ -23,7 +23,7 @@ composer.json
 ```
 
 ```shell
-composer require endroid/qr-code
+composer require littlemo/wechat:"v1.7.*"
 ```
 ### 使用教程
 
