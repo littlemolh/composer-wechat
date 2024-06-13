@@ -36,8 +36,9 @@ class Shipping extends Base
      */
     public function uploadShippingInfo(string $access_token, array $order_key, int $logistics_type, int $delivery_mode, array $shipping_list, array $payer, string $upload_time = '', bool $is_all_delivered = false): array
     {
-        if (!$upload_time) $upload_time = date("Y-m-d H:i:s");
+        // POST https://api.weixin.qq.com/wxa/sec/order/upload_shipping_info?access_token=ACCESS_TOKEN
         $url = "https://api.weixin.qq.com/wxa/sec/order/upload_shipping_info";
+        if (!$upload_time) $upload_time = date("Y-m-d H:i:s");
         $body = compact('order_key', 'logistics_type', 'delivery_mode', 'upload_time', 'shipping_list', 'payer', 'is_all_delivered');
         $params = compact('access_token');
         return $this->init_result((new HttpClient())->post($url, $body, $params));
@@ -56,6 +57,7 @@ class Shipping extends Base
      */
     public function getDeliveryList(string $access_token)
     {
+        // POST https://api.weixin.qq.com/cgi-bin/express/delivery/open_msg/get_delivery_list?access_token=XXX
         $url = "https://api.weixin.qq.com/cgi-bin/express/delivery/open_msg/get_delivery_list";
         $body = [];
         $params = compact('access_token');

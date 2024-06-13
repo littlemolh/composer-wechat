@@ -8,27 +8,27 @@ Wechat littlemo
 [![PHP Version](https://img.shields.io/badge/php-%3E%3D7.0-8892BF.svg)](http://www.php.net/)
 [![License](https://poser.pugx.org/littlemo/wechat/license)](https://packagist.org/packages/littlemo/wechat)
 
-### 介绍
+## 介绍
 微信常用工具库
 
-### 安装教程
+## 安装
 
 composer.json
 ```json
 {
     "require": {
-        "littlemo/wechat": "1.7.*"
+        "littlemo/wechat": "1.8.*"
     }
 }
 ```
 
 ```shell
-composer require littlemo/wechat:"v1.7.*"
+composer require littlemo/wechat:"1.8.*"
 ```
-### 使用教程
+## 使用
 
 #### 公共
-===
+
 
 > 公共部分被所有方法继承，实例化任意类均可调用
 
@@ -98,25 +98,25 @@ $intactMsg = $Class->getIntactMsg();
 > [官方文档](https://developers.weixin.qq.com/doc/offiaccount/Basic_Information/Get_access_token.html)
 
 
-#### [公众号](https://github.com/littlemolh/composer-wechat/tree/main/src/gzh)
+### [公众号](https://github.com/littlemolh/composer-wechat/tree/main/src/gzh)
 
-#### 小程序
-
-> 整理中...
-
-#### 开放平台
+### 小程序
 
 > 整理中...
 
-#### 微信支付
+### 开放平台
 
 > 整理中...
 
-### 参与贡献
+### 微信支付
+
+> 整理中...
+
+## 参与贡献
 
 1.  littlemo
 
 
-### 特技
+## 特技
 
 - 统一、精简
