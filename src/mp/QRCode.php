@@ -13,6 +13,12 @@ use littlemo\utils\HttpClient;
  */
 class QRCode
 {
+      // 枚举
+      public static $EnvVersion = [
+        'release' => 'release',
+        'trial' => 'trial',
+        'develop' => 'develop',
+    ];
     /**
      * 接口调用凭证
      */
