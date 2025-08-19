@@ -13,19 +13,117 @@
 namespace littlemo\wechat\pay\v3\partner;
 
 use littlemo\wechat\core\LWechatException;
-use littlemo\wechat\pay\v3\Config;
 
 /**
- * 分账
+ * 提交申请单
  * @description
  * @example
  * @author LittleMo 25362583@qq.com
  * @since 2023-03-13
  * @version 2023-03-13
  */
-class  Profitsharing extends \littlemo\wechat\pay\v3\Base
+class  Applyment extends \littlemo\wechat\pay\v3\Base
 {
 
+    private $business_code = null; //业务申请编号 
+    private $contact_info = []; //超级管理员信息
+    private $subject_info = []; //主体资料
+    private $business_info = []; //经营资料
+    private $settlement_info = []; //结算规则
+    private $bank_account_info = []; //结算银行账户
+
+
+    /**
+     * 业务申请编号
+     * @description
+     * @example
+     * @author LittleMo 25362583@qq.com
+     * @since 2025-07-25
+     * @version 2025-07-25
+     * @param string $business_code
+     * @return Applyment
+     */
+    public function businessCode(array $business_code): Applyment
+    {
+        $this->business_code = $business_code;
+        return $this;
+    }
+    /**
+     * 超级管理员信息
+     * @description
+     * @example
+     * @author LittleMo 25362583@qq.com
+     * @since 2025-07-25
+     * @version 2025-07-25
+     * @param array $contact_info
+     * @return Applyment
+     */
+    public function contactInfo(array $contact_info): Applyment
+    {
+        $this->contact_info = $contact_info;
+        return $this;
+    }
+    /**
+     * 主体资料
+     * @description
+     * @example
+     * @author LittleMo 25362583@qq.com
+     * @since 2025-07-25
+     * @version 2025-07-25
+     * @param array $subject_info
+     * @return Applyment
+     */
+    public function subjectInfo($subject_info): Applyment
+    {
+        $this->subject_info = $subject_info;
+        return $this;
+    }
+    /**
+     * 经营材资料
+     * @description
+     * @example
+     * @author LittleMo 25362583@qq.com
+     * @since 2025-07-25
+     * @version 2025-07-25
+     * @param array $business_info
+     * @return Applyment
+     */
+    public function businessInfo($business_info): Applyment
+    {
+        $this->business_info = $business_info;
+        return $this;
+    }
+    /**
+     * 结算规则
+     * @description
+     * @example
+     * @author LittleMo 25362583@qq.com
+     * @since 2025-07-25
+     * @version 2025-07-25
+     * @param array $settlement_info
+     * @return Applyment
+     */
+    public function settlementInfo($settlement_info): Applyment
+    {
+        $this->settlement_info = $settlement_info;
+        return $this;
+    }
+    /**
+     * 银行结算账户
+     * @description
+     * @example
+     * @author LittleMo 25362583@qq.com
+     * @since 2025-07-25
+     * @version 2025-07-25
+     * @param array $bank_account_info
+     * @return Applyment
+     */
+    public function bank_accountInfo($bank_account_info): Applyment
+    {
+        $this->bank_account_info = $bank_account_info;
+        return $this;
+    }
+    public function submit() {}
     protected function post(string $chain, array $json, array $headers = []): array
     {
         $result = parent::post($chain, $json, $headers);
@@ -49,37 +147,29 @@ class  Profitsharing extends \littlemo\wechat\pay\v3\Base
      * @param bool $unfreeze_unsplit 是否解冻剩余未分资金
      * @return array
      */
-    public function orders(string $transaction_id, string $out_order_no, array $receivers, ?bool $unfreeze_unsplit = false): array
+    public function orders(string $transaction_id, string $out_order_no, array $receivers, bool $unfreeze_unsplit = false): array
     {
 
         $chain = 'v3/profitsharing/orders';
 
         $body = [
-            'sub_mchid' => Config::$subMchid,
-            'appid' => Config::$appid,
+            'sub_mchid' => $this->subMchid,
+            'appid' => $this->appid,
+            'sub_appid' => $this->subAppid
         ];
-        if (Config::$subAppid) {
-            $body += ['sub_appid' => Config::$subAppid];
-        }
 
         $body['transaction_id'] = $transaction_id;
         $body['out_order_no'] = $out_order_no;
         foreach ($receivers as &$val) {
             $val['amount'] = (int)$val['amount'];
-            if (isset($val['name'])) {
-                if (!$val['name']) {
-                    unset($val['name']);
-                } else {
-                    $val['name'] = static::encrypt($val['name']);
-                }
-            }
+            $val['name'] = static::encrypt($val['amount']);
         }
         $body['receivers'] = $receivers;
         $body['unfreeze_unsplit'] = $unfreeze_unsplit;
 
 
 
-        return $this->post($chain, $body, ['Wechatpay-Serial' => Config::$platformCertificateSerial]);
+        return $this->post($chain, $body, ['Wechatpay-Serial' => static::$platformCertificateSerial]);
     }
 
     /**
@@ -89,8 +179,8 @@ class  Profitsharing extends \littlemo\wechat\pay\v3\Base
      * @author LittleMo 25362583@qq.com
      * @since 2023-03-13
      * @version 2023-03-13
-     * @param string $transaction_id    【微信订单号】微信支付订单号
-     * @param string $out_order_no      【商户分账单号】查询分账结果，输入申请分账时的商户分账单号； 查询分账完结执行的结果，输入发起分账完结时的商户分账单号。
+     * @param string $transaction_id    微信支付订单号
+     * @param string $out_order_no      商户分账单号
      * @return array
      */
     public function getOrders(string $transaction_id, string $out_order_no): array
@@ -98,7 +188,7 @@ class  Profitsharing extends \littlemo\wechat\pay\v3\Base
 
         $chain = 'v3/profitsharing/orders/{out_order_no}';
         $query = [
-            'sub_mchid' => Config::$subMchid,
+            'sub_mchid' => $this->subMchid,
         ];
         $query['transaction_id'] = $transaction_id;
 
@@ -255,19 +345,17 @@ class  Profitsharing extends \littlemo\wechat\pay\v3\Base
 
         $chain = 'v3/profitsharing/receivers/add';
         $body = array_merge([
-            'sub_mchid' => Config::$subMchid,
-            'appid' => Config::$appid,
+            'sub_mchid' => $this->subMchid,
+            'appid' => $this->appid,
+            'sub_appid' => $this->subAppid
         ], compact('type', 'account', 'relation_type'));
         if (!empty($name)) {
             $body['name'] = static::encrypt($name);
         }
-        if (Config::$subAppid) {
-            $body += ['sub_appid' => Config::$subAppid];
-        }
         if (!empty($custom_relation)) {
             $body['custom_relation'] = $custom_relation;
         }
-        return $this->post($chain, $body, ['Wechatpay-Serial' => Config::$platformCertificateSerial]);
+        return $this->post($chain, $body, ['Wechatpay-Serial' => static::$platformCertificateSerial]);
     }
 
     /**

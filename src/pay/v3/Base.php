@@ -15,12 +15,12 @@ namespace littlemo\wechat\pay\v3;
 use littlemo\wechat\core\LWechatException;
 
 use WeChatPay\Builder;
-use WeChatPay\BuilderChainable;
 use WeChatPay\Crypto\Rsa;
-use WeChatPay\Util\PemUtil;
 use WeChatPay\Transformer;
 use WeChatPay\Formatter;
 use WeChatPay\Crypto\AesGcm;
+use WeChatPay\Util\PemUtil;
+use WeChatPay\Util\MediaUtil;
 
 /**
  * 微信支付V3公共方法
@@ -50,13 +50,53 @@ class  Base
      * @param array $apiv3Key   V3支付密钥
      * @param array $appid      应用ID sp:应用appid，sub:下级应用appid
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
-    public function encrypt(string $msg): string
+    public static function encrypt(string $msg): string
     {
         return Rsa::encrypt($msg, Config::$platformPublicKeyInstance);
+    }
+
+
+    /**
+     * GET请求
+     * @description
+     * @example
+     * @author LittleMo 25362583@qq.com
+     * @since 2023-03-24
+     * @version 2023-03-24
+     * @param string $chain
+     * @param array $query      查询参数
+     * @param array $path       路径参数
+     * @param array $headers    HTTP头参数
+     * @return array
+     */
+    protected function get(string $chain, array $query = [],  array $path = [], array $headers = []): array
+    {
+        try {
+            $resp = Config::$instance->chain($chain)
+                ->get(array_merge(compact('query', 'headers'), $path));
+            // var_dump($resp->getStatusCode());
+            // var_dump($resp->getBody());
+            return (array)json_decode($resp->getBody(), true);
+        } catch (\Exception $e) {
+            // 进行异常捕获并进行错误判断处理
+            $code = $e->getCode();
+            // var_dump($e->getCode());
+            $message = $e->getMessage();
+            // var_dump($e->getMessage());
+            if ($e instanceof \GuzzleHttp\Exception\RequestException && $e->hasResponse()) {
+                $r = $e->getResponse();
+                // var_dump($r->getStatusCode());
+                // var_dump($r->getReasonPhrase());
+                // var_dump(json_decode($r->getBody(), true));
+                $content = (array)json_decode($r->getBody(), true);
+                // 非致致命性错误
+                return $content;
+            }
+            // var_dump($e->getTraceAsString());
+            throw new LWechatException($message, $code, compact('code', 'message'));
+        }
     }
 
     /**
@@ -73,28 +113,117 @@ class  Base
      */
     protected function post(string $chain, array $json, array $headers = []): array
     {
-        return $this->request('post',  $chain,  $json,  $headers, [], []);
+        try {
+            $resp = Config::$instance->chain($chain)
+                ->post(compact('json', 'headers'));
+            // var_dump($resp->getStatusCode());
+            // var_dump($resp->getBody());
+            return (array)json_decode($resp->getBody(), true);
+        } catch (\Exception $e) {
+            // 进行异常捕获并进行错误判断处理
+            $code = $e->getCode();
+            // var_dump($e->getCode());
+            $message = $e->getMessage();
+            $content = compact('code', 'message');
+            // var_dump($e->getMessage());
+            if ($e instanceof \GuzzleHttp\Exception\RequestException && $e->hasResponse()) {
+                $r = $e->getResponse();
+                // var_dump($r->getStatusCode());
+                // var_dump($r->getReasonPhrase());
+                // var_dump(json_decode($r->getBody(), true));
+                $content = (array)json_decode($r->getBody(), true);
+                $code = $content['code'] ?? $code;
+                $message = $content['message'] ?? $message;
+            }
+            // var_dump($e->getTraceAsString());
+            throw new LWechatException($message, $code, $content);
+        }
     }
-
     /**
-     * GET请求
+     * 上传文件
      * @description
      * @example
      * @author LittleMo 25362583@qq.com
-     * @since 2023-03-24
-     * @version 2023-03-24
-     * @param string $chain
-     * @param array $query  URL传参
-     * @param array $patn   路径参数
+     * @since 2025-07-29
+     * @version 2025-07-29
+     * @param string $chain    链路
+     * @param string $filePath  文件路径
      * @return array
      */
-    protected function get(string $chain, array $query, array $patn = []): array
+    protected function upload(string $chain, string $filePath): array
     {
-        return $this->request('get',  $chain, [], [],  $query,  $patn);
+
+        try {
+            var_dump($chain);
+            var_dump($filePath);
+            $media = new MediaUtil($filePath);
+            $resp = Config::$instance->chain($chain)
+                ->post([
+                    'body' => $media->getStream(),
+                    'headers' => [
+                        'expect' => 1024 * 1024 * 1024,
+                        'Content-Type' => $media->getContentType(),
+                        // 'Wechatpay-Serial' => $platformCertificateSerial
+                    ],
+                ]);
+            // var_dump($resp->getStatusCode());
+            // var_dump($resp->getBody());
+            var_dump('normal');
+            var_dump($resp->getBody());
+            return (array)json_decode($resp->getBody(), true);
+        } catch (\Exception $e) {
+            var_dump('Exception');
+            // 进行异常捕获并进行错误判断处理
+            $code = $e->getCode();
+            $message = $e->getMessage();
+            var_dump(compact('code', 'message'));
+            if ($e instanceof \GuzzleHttp\Exception\RequestException && $e->hasResponse()) {
+                $r = $e->getResponse();
+                var_dump($r->getStatusCode());
+                var_dump($r->getReasonPhrase());
+                var_dump($r->getBody());
+                $content = (array)json_decode($r->getBody(), true);
+                return $content;
+            }
+            // var_dump($e->getTraceAsString());
+            throw new LWechatException($message, $code, compact('code', 'message'));
+        }
     }
 
-    protected function request(string $method, string $chain, array $json, array $headers = [], array $query, array $patn = []): array
+
+
+    protected function request(string $method, string $chain, array $json, array $headers = [], array $query, array $path = []): array
     {
+        $instance = Builder::factory([
+            'mchid'      => Config::$mchid,
+            'serial'     => Config::$merchantCertificateSerial,
+            'privateKey' => Config::$merchantPrivateKeyInstance,
+            'certs'      => [
+                Config::$platformCertificateSerial => Config::$platformPublicKeyInstance,
+                // Config::$platformPublicKeyId       => Config::$twoPlatformPublicKeyInstance,
+            ],
+        ]);
+        // $resp = $instance->chain('v3/certificates')->get(
+        //     /** @see https://docs.guzzlephp.org/en/stable/request-options.html#debug */
+        //     // ['debug' => true] // 调试模式商户的系统如果使用了平台证书，应实现平台证书平滑更换功能，关于平台证书平滑更换，以下描述正确的是（多选）：
+        // );
+        // echo (string) $resp->getBody(), PHP_EOL;
+        // return [];
+        var_dump([
+            'mchid'      => Config::$mchid,
+            'serial'     => Config::$merchantCertificateSerial,
+            'privateKey' => Config::$merchantPrivateKeyInstance,
+            'certs'      => [
+                Config::$platformCertificateSerial => Config::$platformPublicKeyInstance,
+            ],
+        ]);
+        var_dump(array_merge(compact('query', 'json', 'headers'), $path));
+        $resp = $instance
+            ->chain($chain)
+            ->$method(array_merge(compact('query', 'json', 'headers'), $path));
+        var_dump($resp->getStatusCode());
+        var_dump($resp->getBody());
+        return [];
         try {
             // 构造一个 APIv3 客户端实例
             $instance = Builder::factory([
@@ -107,7 +236,7 @@ class  Base
             ])->chain($chain);
 
             $resp = $instance
-                ->$method(array_merge(compact('query', 'json', 'headers'), $patn));
+                ->$method(array_merge(compact('query', 'json', 'headers'), $path));
             // var_dump($resp->getStatusCode());
             // var_dump($resp->getBody());
             return (array)json_decode($resp->getBody(), true);
@@ -117,6 +246,7 @@ class  Base
             // var_dump($e->getCode());
             $message = $e->getMessage();
             $content = compact('code', 'message');
+            var_dump($content);
             // var_dump($e->getMessage());
             if ($e instanceof \GuzzleHttp\Exception\RequestException && $e->hasResponse()) {
                 $r = $e->getResponse();

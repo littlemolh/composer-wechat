@@ -44,7 +44,10 @@ class  Transactions extends \littlemo\wechat\pay\v3\Base
     // 支付支付场景描述
     private $scene_info = '';
 
-
+    public static function create(): self
+    {
+        return new self();
+    }
 
     /**
      * 支付基础信息
@@ -92,11 +95,10 @@ class  Transactions extends \littlemo\wechat\pay\v3\Base
             'total' => (int)$amount['total'], //订单总金额，单位为分。 示例值：100
             'currency' => 'CNY', //CNY：人民币，境内商户号仅支持人民币。 示例值：CNY
         ];
-
         return $this;
     }
 
-    public function payer(string $type, string $openid): Transactions
+    public function payer(string $openid, string $type = 'sub_openid'): Transactions
     {
         //支付者信息 下面两个二选一
         // [
@@ -158,11 +160,10 @@ class  Transactions extends \littlemo\wechat\pay\v3\Base
      */
     public function jsapi()
     {
-
         $chain = 'v3/pay/partner/transactions/jsapi';
         $body = $this->body;
 
-        $body['sub_mchid'] = Config::$subMchid;
+        $body['sub_mchid'] = $body['sub_mchid'] ?? Config::$subMchid;
         $body['sp_mchid'] = Config::$mchid;
         $body['sp_appid'] = Config::$appid;
         $body['sub_appid'] = Config::$subAppid;
@@ -176,7 +177,7 @@ class  Transactions extends \littlemo\wechat\pay\v3\Base
         // 支付场景描述
         if ($this->scene_info)  $body['scene_info']  = $this->scene_info;
 
-        return $this->post($chain, $body);
+        return $this->post($chain, $body, ['Wechatpay-Serial' => Config::$platformCertificateSerial]);
     }
 
     /**
@@ -189,11 +190,11 @@ class  Transactions extends \littlemo\wechat\pay\v3\Base
      * @param string $prepay_id 预支付交易会话标识
      * @return array
      */
-    public function jsapiSign(string $prepay_id): array
+    public function jsapiSign(string $prepay_id, string $appId = ''): array
     {
 
         $params = [
-            'appId'     => Config::$subAppid,
+            'appId'     => $appId ?: Config::$appid,
             'timeStamp' => (string)Formatter::timestamp(),
             'nonceStr'  => Formatter::nonce(),
             'package'   => 'prepay_id=' . $prepay_id,

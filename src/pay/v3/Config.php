@@ -15,6 +15,7 @@ namespace littlemo\wechat\pay\v3;
 
 use WeChatPay\Crypto\Rsa;
 use WeChatPay\Util\PemUtil;
+use WeChatPay\Builder;
 
 /**
  * 微信支付V3公共方法
@@ -56,53 +57,90 @@ class  Config
 
 
     /**
-     * 商户私钥实例
+     * 「商户API私钥」
+     * 「商户API私钥」会用来生成请求的签名
      */
     public static $merchantPrivateKeyInstance = null;
     /**
-     * 商户证书序列号
+     * 「商户API证书」的「证书序列号」
      */
     public static $merchantCertificateSerial = null;
     /**
-     * 平台公钥实例
+     * 「微信支付平台证书」
+     * 可由内置CLI工具下载到，用来验证微信支付应答的签名
+     * or
+     * 「微信支付公钥」
+     * 可以从「微信支付平台证书」文件解析，也可以在 商户平台 -> 账户中心 -> API安全 查询到
      */
     public static $platformPublicKeyInstance = null;
 
     /**
-     * 微信支付平台证书序列号」
+     * 「微信支付平台证书」的「平台证书序列号」
+     * 可以从「微信支付平台证书」文件解析，也可以在 商户平台 -> 账户中心 -> API安全 查询到
+     * or
+     * 「微信支付公钥」的「微信支付公钥ID」
+     * 需要在 商户平台 -> 账户中心 -> API安全 查询
      */
     public static $platformCertificateSerial = null;
 
+    /**
+     * APIv3 客户端实例
+     */
+    public static $instance = null;
     public static function create()
     {
         return new self;
     }
+
     /**
-     * 设置证书
+     * 商户API证书
      * @description
      * @example
      * @author LittleMo 25362583@qq.com
-     * @since 2023-09-01
-     * @version 2023-09-01
-     * @param string $merchantCertificateFilePath  商户证书路径
-     * @param string $merchantPrivateKeyFilePath   商户私钥路径
-     * @param string $platformCertificateFilePath  微信平台证书路径 获取方式https://github.com/wechatpay-apiv3/wechatpay-php/blob/main/bin/README.md
+     * @since 2025-07-29
+     * @version 2025-07-29
+     * @param string $certificatePath
+     * @param string $privateKeyFilePath
      * @return Config
      */
-    public function cert(string $merchantCertificateFilePath, string $merchantPrivateKeyFilePath, string $platformCertificateFilePath = ''): Config
+    public function merchantCert($certificatePath, $privateKeyFilePath): Config
     {
-
-        // 从本地文件中加载「商户API私钥」，「商户API私钥」会用来生成请求的签名
-        static::$merchantPrivateKeyInstance = Rsa::from('file:///' . $merchantPrivateKeyFilePath, Rsa::KEY_TYPE_PRIVATE);
-        // 「商户API证书」的「证书序列号」
-        static::$merchantCertificateSerial = PemUtil::parseCertificateSerialNo('file:///' . $merchantCertificateFilePath);
-        // $merchantCertificateSerial = '74D657DDCBB881F684BA1D94A0CCE6453B4E86F7';
-        // 从本地文件中加载「微信支付平台证书」，用来验证微信支付应答的签名
-        // $platformCertificateFilePath = $this->platformCertPath; //'file:///' . dirname(__DIR__, 3) . '/demo/pay/cert/wechatpay_39C8FA681DDDB06C88C8D851294CDA5E86376089.pem';
-        static::$platformPublicKeyInstance = Rsa::from('file:///' . $platformCertificateFilePath, Rsa::KEY_TYPE_PUBLIC);
-        // 从「微信支付平台证书」中获取「证书序列号」
-        static::$platformCertificateSerial = PemUtil::parseCertificateSerialNo('file:///' . $platformCertificateFilePath);
-
+        static::$merchantCertificateSerial = PemUtil::parseCertificateSerialNo('file://' . $certificatePath);
+        static::$merchantPrivateKeyInstance = Rsa::from('file://' . $privateKeyFilePath, Rsa::KEY_TYPE_PRIVATE);
+        return $this;
+    }
+    /**
+     * 微信支付平台证书/微信支付公钥
+     * @description
+     * @example
+     * @author LittleMo 25362583@qq.com
+     * @since 2025-07-28
+     * @version 2025-07-28
+     * @param string $certificateSerial
+     * @param string $certFilePath
+     * @return Config
+     */
+    public function platformCert($certFilePath): Config
+    {
+        static::$platformCertificateSerial = PemUtil::parseCertificateSerialNo('file://' . $certFilePath);;
+        static::$platformPublicKeyInstance = Rsa::from('file://' . $certFilePath, Rsa::KEY_TYPE_PUBLIC);
+        return $this;
+    }
+    /**
+     * 微信支付公钥
+     * @description
+     * @example
+     * @author LittleMo 25362583@qq.com
+     * @since 2025-07-28
+     * @version 2025-07-28
+     * @param string $id            微信支付公钥ID 需要在 商户平台 -> 账户中心 -> API安全 查询
+     * @param string $certFilePath  微信支付公钥文件路径
+     * @return Config
+     */
+    public function publicKey(string $id, string $certFilePath): Config
+    {
+        static::$platformCertificateSerial = $id;
+        static::$platformPublicKeyInstance = Rsa::from('file://' . $certFilePath, Rsa::KEY_TYPE_PUBLIC);
         return $this;
     }
 
@@ -121,6 +159,13 @@ class  Config
     {
         // 商户号
         self::$mchid = $mchid;
+        // 子商户号
+        self::$subMchid = $subMchid;
+
+        return $this;
+    }
+    public function subMchid(string $subMchid = ''): Config
+    {
         // 子商户号
         self::$subMchid = $subMchid;
 
@@ -165,18 +210,25 @@ class  Config
         return $this;
     }
 
-
     /**
      * 构造一个 APIv3 客户端实例
      * @description
      * @example
      * @author LittleMo 25362583@qq.com
-     * @since 2023-03-24
-     * @version 2023-09-01
-     * @return Config
+     * @since 2025-07-28
+     * @version 2025-07-28
+     * @return bool
      */
-    public function build(): Config
+    public function buildInstance(): bool
     {
-        return $this;
+        static::$instance = Builder::factory([
+            'mchid'      => Config::$mchid,
+            'serial'     => Config::$merchantCertificateSerial,
+            'privateKey' => Config::$merchantPrivateKeyInstance,
+            'certs'      => [
+                Config::$platformCertificateSerial => Config::$platformPublicKeyInstance
+            ],
+        ]);
+        return true;
     }
 }
